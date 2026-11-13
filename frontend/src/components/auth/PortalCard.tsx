@@ -60,34 +60,34 @@ export const PortalCard: React.FC<PortalCardProps> = ({
   return (
     <Link
       to={to}
-      className={`group relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-md shadow-slate-200/50 ${currentTheme.borderHover} hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left overflow-hidden`}
+      className={`group relative flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm ${currentTheme.borderHover} hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left overflow-hidden`}
     >
       {/* Subtle top subtle corner glow */}
       <div
         className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl ${currentTheme.accentGlow} rounded-bl-full pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-40`}
       />
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {/* Top Icon & Badge Row */}
         <div className="flex items-start justify-between">
           <div
-            className={`w-13 h-13 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xs ${currentTheme.iconBg}`}
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-300 shadow-xs ${currentTheme.iconBg}`}
           >
             {icon}
           </div>
           <span
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold border tracking-wide uppercase ${currentTheme.badgeBg}`}
+            className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border tracking-wide uppercase ${currentTheme.badgeBg}`}
           >
             {badge}
           </span>
         </div>
 
         {/* Title & Description */}
-        <div className="space-y-1.5 pt-1">
-          <h3 className="text-xl font-bold tracking-tight text-[#171B2C] group-hover:text-[#3435D8] transition-colors">
+        <div className="space-y-1 pt-0.5">
+          <h3 className="text-lg sm:text-xl font-bold tracking-tight text-[#171B2C] group-hover:text-[#3435D8] transition-colors">
             {title}
           </h3>
-          <p className="text-xs sm:text-[13px] leading-relaxed text-[#737B91]">
+          <p className="text-xs leading-relaxed text-[#737B91]">
             {description}
           </p>
         </div>
