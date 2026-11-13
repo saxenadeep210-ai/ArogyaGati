@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: arogyagati-backend
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:arogyagati_db}
+    username: ${POSTGRES_USER:arogya_admin}
+    password: ${POSTGRES_PASSWORD:arogya_secure_password_2026}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:redis_secure_pass_2026}
+
+jwt:
+  secret: ${JWT_SECRET:arogyagati_super_secret_jwt_hmac512_key_minimum_64_bytes_long_string_2026}
+  expiration-ms: 86400000
