@@ -1,0 +1,12 @@
+org\arogyagati\entity\GroupChatMessage.class
+org\arogyagati\entity\HospitalBed.class
+org\arogyagati\ArogyaGatiApplication.class
+org\arogyagati\entity\QueueToken.class
+org\arogyagati\entity\GroupChatMessage$MessageVisibility.class
+org\arogyagati\entity\Patient.class
+org\arogyagati\entity\Doctor.class
+org\arogyagati\entity\QueueToken$TokenPriority.class
+org\arogyagati\entity\HospitalBed$BedCategory.class
+org\arogyagati\entity\QueueToken$TokenStatus.class
+org\arogyagati\entity\HospitalBed$BedStatus.class
+org\arogyagati\entity\Doctor$DoctorStatus.class
