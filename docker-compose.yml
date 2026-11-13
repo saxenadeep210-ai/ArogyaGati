@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Primary Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: arogyagati-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: arogyagati_db
+      POSTGRES_USER: arogya_admin
+      POSTGRES_PASSWORD: arogya_secure_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/migrations/V1__initial_schema.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arogya_admin -d arogyagati_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Live Token Queues & Pub/Sub
+  redis:
+    image: redis:7-alpine
+    container_name: arogyagati-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass redis_secure_pass_2026
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis_secure_pass_2026", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Cloud API Gateway
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.gateway
+    container_name: arogyagati-gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: redis_secure_pass_2026
+      JWT_SECRET: arogyagati_super_secret_jwt_hmac512_key_minimum_64_bytes_long_string_2026
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:

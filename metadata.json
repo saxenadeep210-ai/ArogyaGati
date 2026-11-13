@@ -1,0 +1,6 @@
+{
+  "name": "ArogyaGati - Smart Hospital Management Platform",
+  "description": "Unified Smart Government Hospital Management & Patient Coordination Platform featuring OPD token management, emergency ambulance triage, doctor schedules, bed tracker, doctor guide box, and indoor navigation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

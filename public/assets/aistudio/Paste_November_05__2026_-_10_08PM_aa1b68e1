@@ -1,0 +1,1472 @@
+# MASTER SYSTEM PROMPT: AROGYAGATI
+## Unified Smart Government Hospital Management & Patient Coordination Platform
+
+### ROLE AND RESPONSIBILITY
+
+Act as a Principal Software Architect, Senior Java Spring Boot Developer, React/TypeScript Engineer, Database Architect, DevOps Engineer, UI/UX Designer, and Application Security Engineer.
+
+Your task is to design, develop, implement, and test a complete, functional, scalable, secure, and responsive government hospital management platform named **ArogyaGati**.
+
+This is not a static website or a UI-only prototype.
+
+Build a fully integrated, database-connected, role-based hospital management system with real-time token management, patient registration, doctor scheduling, hospital resource tracking, and secure doctor-patient communication.
+
+Follow the architecture, workflows, and handwritten blueprint specifications provided below.
+
+Do not skip features, simplify important workflows, or replace backend functionality with frontend mock data.
+
+---
+
+# 1. PROJECT OVERVIEW
+
+**Project Name:** ArogyaGati
+
+**Project Type:** Unified Smart Government Hospital Management System.
+
+**Primary Objective:**
+
+To digitize and coordinate the patient journey from hospital entry and registration to doctor consultation, bed allocation, and patient assistance.
+
+The platform aims to address:
+
+1. Long patient queues and inefficient OPD management.
+2. Lack of real-time token information.
+3. Difficulty finding the correct doctor and department.
+4. Lack of visibility into hospital bed availability.
+5. Unorganized doctor duty schedules.
+6. Fragmented communication between patients and hospital staff.
+7. Difficulty navigating large hospital campuses.
+8. Lack of centralized hospital operational information.
+
+The platform must support both normal OPD patients and emergency/ambulance patients.
+
+### Core principle
+
+Build a centralized, role-based platform with separate interfaces for:
+
+- Patients / Citizens
+- Ambulance personnel
+- Doctors
+- Hospital Staff / Administrators
+
+Each role must have its own dashboard, permissions, and workflow.
+
+---
+
+# 2. TECHNOLOGY STACK
+
+Use the following technologies.
+
+## Backend
+
+- Java 17 or newer
+- Spring Boot 3.x
+- Spring Security
+- JWT Authentication
+- Spring Data JPA
+- Spring WebSocket
+- STOMP and SockJS
+- Spring Cloud Gateway
+- Hibernate
+- Maven
+
+## Database and caching
+
+- PostgreSQL: Main relational database.
+- Redis: Token queues, caching, live updates, and Pub/Sub.
+- Flyway: Database schema versioning.
+
+## Frontend
+
+- React.js
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide React Icons
+- React Router
+- Axios
+- TanStack Query
+- STOMP.js
+- SockJS Client
+
+## Additional integrations
+
+- ABDM Gateway Mock Integration.
+- ABHA ID verification mock.
+- FHIR R4-compatible healthcare data structures.
+- Leaflet or SVG-based indoor navigation.
+- Docker and Docker Compose.
+
+Use current stable, mutually compatible versions of the libraries.
+
+---
+
+# 3. SYSTEM ARCHITECTURE
+
+Implement a decoupled microservice-oriented architecture.
+
+### High-level architecture
+
+Clients:
+- Citizen / Patient PWA
+- Ambulance Portal
+- Doctor Portal
+- Hospital Staff Portal
+
+↓
+
+API Gateway:
+Spring Cloud Gateway
+
+Responsibilities:
+- JWT authentication and authorization.
+- Request routing.
+- CORS configuration.
+- Redis-based rate limiting.
+- Request validation.
+- Centralized exception handling.
+
+↓
+
+Core services:
+
+### A. Identity and Authentication Service
+
+Responsibilities:
+- Patient registration.
+- Doctor authentication.
+- Ambulance authentication.
+- Hospital staff authentication.
+- OTP generation and verification.
+- JWT access and refresh tokens.
+- Role-based access control.
+
+### B. Token and Queue Service
+
+Technologies:
+Spring Boot + Redis.
+
+Responsibilities:
+- Emergency token generation.
+- Normal OPD token generation.
+- Department-wise queues.
+- Real-time queue tracking.
+- Dynamic waiting-time estimation.
+- Token priority management.
+- Doctor-wise queue assignment.
+- Token status broadcasting.
+
+Use Redis Sorted Sets or another suitable atomic queue structure.
+
+### C. Resource and Facility Service
+
+Technologies:
+Spring Boot + PostgreSQL + Redis.
+
+Responsibilities:
+- Building management.
+- Floor management.
+- Bed inventory.
+- Bed availability.
+- Bed reservation and allocation.
+- Bed occupancy updates.
+- Hospital resource monitoring.
+
+### D. Doctor Directory and Scheduling Service
+
+Responsibilities:
+- Doctor profiles.
+- Department hierarchy.
+- Doctor qualifications.
+- Doctor IDs.
+- OPD schedules.
+- Weekly duty rotations.
+- Doctor availability.
+- Room and cabin assignments.
+- Patient-to-doctor routing.
+
+### E. Doctor Guide Box / Communication Service
+
+Technologies:
+Spring Boot + WebSocket + PostgreSQL.
+
+Responsibilities:
+- Patient-specific group creation.
+- Doctor group assignment.
+- Secure messaging.
+- Role-based message visibility.
+- Message history.
+- Real-time notifications.
+
+### F. Wayfinder and Indoor Navigation Service
+
+Responsibilities:
+- Hospital building information.
+- Floor maps.
+- Department locations.
+- OPD room and cabin locations.
+- Bed locations.
+- Indoor navigation.
+- Route instructions.
+
+Use a node-edge graph for indoor navigation.
+
+### Integrations
+
+- ABDM Gateway Mock.
+- ABHA verification.
+- FHIR R4-compatible data exchange.
+- SMS/OTP notification adapter.
+
+All services must communicate through documented REST APIs and WebSocket events where appropriate.
+
+For a local development environment, provide a Docker Compose configuration that starts all required services.
+
+---
+
+# 4. LOGIN AND AUTHENTICATION SYSTEM
+
+Create a professional login experience with four distinct login options.
+
+### Login Option 1: Patient Login
+
+Authentication:
+- Mobile number.
+- OTP verification.
+- Optional ABHA ID linking.
+
+After successful authentication, redirect to Patient Dashboard.
+
+### Login Option 2: Ambulance Login
+
+Authentication:
+- Ambulance ID / Registration Number.
+- Registered attendant or healthcare personnel ID.
+- Mobile OTP verification.
+
+After authentication, redirect to Ambulance Dashboard.
+
+### Login Option 3: Doctor Login
+
+Authentication:
+- Unique Doctor ID.
+- Registered mobile number.
+- OTP verification.
+
+After authentication, redirect to Doctor Dashboard.
+
+### Login Option 4: Hospital Staff Login
+
+Authentication:
+- Staff ID.
+- Registered mobile number.
+- OTP verification.
+- Role-specific permissions.
+
+After authentication, redirect to Hospital Staff Dashboard.
+
+### Security requirements
+
+- OTP expiry.
+- OTP attempt limits.
+- Resend OTP cooldown.
+- JWT access token.
+- Refresh token rotation.
+- Secure session handling.
+- Role-based authorization.
+- Login audit logs.
+
+For development, implement a configurable mock OTP provider. Never expose real OTPs in production logs.
+
+---
+
+# 5. PATIENT DASHBOARD
+
+Create a simple, accessible, user-friendly dashboard.
+
+The patient dashboard should contain clearly visible service cards with icons.
+
+Main options:
+
+1. Doctor Appointment.
+2. Generate OPD Token.
+3. Emergency Assistance.
+4. Available Beds.
+5. Token Information.
+6. Doctor Guide Box.
+7. Doctor Directory.
+8. Hospital Navigation.
+9. My Medical / Visit History.
+10. Profile and Settings.
+
+Keep the dashboard simple enough for elderly users and people with limited technical knowledge.
+
+Use large buttons, clear labels, readable fonts, and minimal navigation complexity.
+
+---
+
+# 6. PATIENT REGISTRATION AND OPD TOKEN GENERATION
+
+This is one of the most important features.
+
+When the patient clicks Generate OPD Token, open a registration form.
+
+### Patient information
+
+Required fields:
+
+- Patient Name.
+- Patient Age.
+- Gender, if required for registration.
+- Mobile Number.
+- Department / Medical Category.
+- Cause of Visit.
+- Symptoms or Brief Description.
+- Previous Visit Information, if available.
+
+### Medical categories
+
+Initially support:
+
+- Orthopaedics.
+- Cardiology.
+- Neurology.
+- Gynaecology.
+- General Medicine.
+- General Surgery.
+- Neurosurgery.
+- Physiotherapy.
+- Paediatrics.
+- ENT.
+- Dermatology.
+
+Allow administrators to add more categories.
+
+### Visit information
+
+Capture:
+
+- Date of Visit.
+- Preferred OPD date.
+- Previous consultation date.
+- Time of accident, if applicable.
+- Time of registration.
+- Visit type: New / Follow-up.
+- Emergency or Normal.
+
+Do not treat the time of accident as the appointment time.
+
+### Token generation
+
+After successful registration:
+
+1. Validate patient information.
+2. Identify the selected department.
+3. Check doctor availability.
+4. Identify the applicable OPD schedule.
+5. Allocate an appropriate doctor or doctor team.
+6. Generate a unique token.
+7. Store token information in PostgreSQL.
+8. Maintain live queue state in Redis.
+9. Broadcast the token information using WebSocket.
+
+### Token confirmation page
+
+Display:
+
+- Token Number.
+- Patient Name.
+- Department.
+- Doctor Name.
+- Doctor ID.
+- OPD Building.
+- Floor Number.
+- Room / Cabin Number.
+- Scheduled Appointment Time.
+- Current Token Being Served.
+- Estimated Waiting Time.
+- Queue Position.
+- Token Status.
+
+Token statuses:
+
+- Registered.
+- Waiting.
+- Called.
+- In Consultation.
+- Completed.
+- Cancelled.
+- No Show.
+
+The patient must be able to track the token in real time.
+
+Allow cancellation and rescheduling according to configurable hospital policies.
+
+---
+
+# 7. AMBULANCE AND EMERGENCY WORKFLOW
+
+Create a separate Ambulance Dashboard.
+
+The ambulance must authenticate through its Ambulance ID and registered personnel credentials.
+
+### Ambulance registration form
+
+Fields:
+
+- Ambulance ID.
+- Ambulance Registration Number.
+- Attendant / Healthcare Personnel ID.
+- Patient Name, if known.
+- Patient Age, if known.
+- Patient Identifier / ABHA ID, if available.
+- Emergency Category.
+- Brief Case Description.
+- Accident Location.
+- Time of Incident.
+- Time Ambulance Reached Patient.
+- Hospital Destination.
+- Estimated Arrival Time.
+
+Support two case types:
+
+1. Emergency Case.
+2. Normal / Non-Emergency Case.
+
+### Emergency token workflow
+
+After submission:
+
+1. Validate ambulance credentials.
+2. Register the emergency case.
+3. Generate a unique emergency token.
+4. Notify the receiving hospital.
+5. Notify the relevant emergency department.
+6. Identify available emergency doctors.
+7. Check relevant emergency resources.
+8. Provide the ambulance with the assigned hospital destination and instructions.
+9. Update the hospital dashboard in real time.
+
+Emergency tokens must receive priority over routine OPD queues, subject to authorized clinical triage.
+
+Do not allow automated software to make final clinical severity decisions.
+
+### Emergency dashboard
+
+Display:
+
+- Ambulance ID.
+- Patient Information.
+- Emergency Token.
+- Case Category.
+- Assigned Hospital.
+- Assigned Department.
+- Receiving Doctor / Team.
+- Estimated Arrival.
+- Emergency Case Status.
+
+Provide a configurable emergency contact and escalation mechanism.
+
+---
+
+# 8. DOCTOR DIRECTORY AND HIERARCHY
+
+Build a comprehensive Doctor Directory.
+
+The handwritten blueprint specifies the following organizational structure:
+
+Director / Overall Head
+    ↓
+Department Selection
+    ↓
+HOD
+    ↓
+Dean / Senior Faculty
+    ↓
+Senior Professors
+    ↓
+Associate Professors
+    ↓
+Assistant Professors
+    ↓
+Junior Residents (JNR 3 / JNR 2 / JNR 1)
+
+Also support Fellows and other authorized clinical staff.
+
+### Doctor profile fields
+
+- Doctor Name.
+- Unique Doctor ID.
+- Profile Photograph.
+- Department.
+- Designation.
+- Qualification.
+- Specialization.
+- Years of Experience.
+- OPD Days.
+- Duty Schedule.
+- Building Name.
+- Floor Number.
+- Room / Cabin Number.
+- Availability Status.
+
+Photos and professional information must be managed through authorized administrative workflows.
+
+### Directory functionality
+
+Provide:
+
+- Search by Doctor Name.
+- Search by Doctor ID.
+- Filter by Department.
+- Filter by Designation.
+- Filter by OPD Day.
+- View Doctor Profile.
+- View Available Consultation Slots.
+
+Important:
+
+Director, Chancellor, Dean, HOD, and administrative positions must be represented as organizational roles. Do not automatically treat administrative positions as clinical consultation providers.
+
+---
+
+# 9. DOCTOR OPD SCHEDULE AND WEEKLY ROTATION
+
+This is an important feature based on the handwritten blueprint.
+
+The hospital may have multiple sets of doctors working on different days.
+
+Example:
+
+Set A:
+- Monday.
+- Thursday.
+
+Set B:
+- Tuesday.
+- Friday.
+
+Set C:
+- Wednesday.
+- Saturday.
+
+Sunday:
+- Configurable emergency or special OPD schedule.
+
+These schedules are illustrative, not fixed.
+
+### Schedule management
+
+Allow hospital administrators to configure:
+
+- Doctor Set A, B, C, etc.
+- Department.
+- Working Days.
+- Shift Timings.
+- Doctor Availability.
+- OPD Building.
+- Room Number.
+- Cabin Number.
+- Maximum Daily Patients.
+- Consultation Duration.
+
+Example:
+
+Monday — Orthopaedics:
+
+- HOD: Dr. A.
+- Associate Professor: Dr. B.
+- Associate Professor: Dr. C.
+- Assistant Professor: Dr. D.
+- Assistant Professor: Dr. E.
+- Junior Resident: Dr. F.
+- Junior Resident: Dr. G.
+
+Tuesday — Orthopaedics:
+
+A different assigned doctor set.
+
+The system must automatically determine which doctors are scheduled on the selected appointment date.
+
+Avoid hardcoding doctor names or schedules.
+
+Provide a calendar-based schedule management interface.
+
+---
+
+# 10. DOCTOR DESK DASHBOARD
+
+Create a dedicated Doctor Desk.
+
+After login, doctors should see:
+
+### Dashboard overview
+
+- Today's OPD Schedule.
+- Assigned Department.
+- Assigned Room / Cabin.
+- Current Token.
+- Next Patient.
+- Total Waiting Patients.
+- Emergency Cases.
+- Completed Consultations.
+
+### Patient queue
+
+Display a table containing:
+
+- Token Number.
+- Patient Name.
+- Patient Age.
+- Department.
+- Visit Type.
+- Case Description.
+- Registration Time.
+- Waiting Time.
+- Priority.
+- Status.
+
+### Doctor actions
+
+- Call Next Patient.
+- Start Consultation.
+- Mark Consultation Completed.
+- Skip Token.
+- Reassign Patient, if authorized.
+- View Patient Visit History.
+- Open Patient Case Group.
+
+Calling the next patient must update Redis, PostgreSQL, and the connected patient dashboard.
+
+Only authorized doctors and staff may modify consultation status.
+
+---
+
+# 11. DOCTOR GUIDE BOX — CASE-SPECIFIC GROUP CHAT
+
+This is a distinctive feature of ArogyaGati.
+
+Create a secure, patient-specific communication system called:
+
+**Doctor Guide Box**
+
+For every registered patient case, create or associate a dedicated group conversation.
+
+Example:
+
+Patient A:
+
+Assigned members:
+- One Senior Doctor.
+- One Assistant Professor / Associate Doctor.
+- Three Junior Doctors.
+
+Patient B:
+
+A separate group with its own assigned medical team.
+
+### Group functionality
+
+- Real-time messaging.
+- Patient questions.
+- Doctor responses.
+- Message timestamps.
+- Doctor ID identification.
+- Role-based message display.
+- Message history.
+- Notification alerts.
+- Secure conversation access.
+
+### Critical privacy requirement
+
+Never expose:
+
+- Personal phone numbers of doctors.
+- Personal email IDs.
+- Private contact information.
+- Personal accounts.
+
+Instead, display:
+
+DOC-CARDIO-8892 — Senior Resident
+
+DOC-CARDIO-7731 — Assistant Professor
+
+DOC-CARDIO-1192 — Junior Resident
+
+### Patient messaging experience
+
+Patients can submit general questions in their assigned case group.
+
+Doctor responses must appear in the patient's interface as a private, clearly identified response, similar to a direct-message experience.
+
+The patient must not see internal staff contact details or private staff-to-staff discussions.
+
+Implement separate message visibility types:
+
+1. PATIENT_VISIBLE.
+2. STAFF_INTERNAL.
+
+A patient-visible message must be explicitly authorized for patient display.
+
+The system should support controlled communication and optional call requests through a hospital-controlled relay mechanism, not direct exposure of personal numbers.
+
+Do not present this feature as a replacement for emergency medical assistance.
+
+### Technical implementation
+
+Use:
+
+- Spring WebSocket.
+- STOMP.
+- SockJS.
+- PostgreSQL message persistence.
+- JWT-based WebSocket authentication.
+- Conversation membership authorization.
+- Message access validation.
+
+Never rely on frontend filtering alone for privacy.
+
+---
+
+# 12. AVAILABLE BED AND HOSPITAL RESOURCE TRACKER
+
+Build a separate Available Beds dashboard.
+
+Example hospital:
+
+S. N. Medical College, Agra.
+
+The patient should be able to select:
+
+- Hospital.
+- Department.
+- Bed Category.
+
+### Bed categories
+
+- General Ward.
+- Orthopaedic Ward.
+- ICU.
+- Emergency.
+- Private Ward.
+- Isolation Ward.
+- Paediatric Ward.
+
+### Bed hierarchy
+
+Hospital
+    ↓
+Building Name
+    ↓
+Floor Number
+    ↓
+Department / Ward
+    ↓
+Bed Number
+
+Example:
+
+Orthopaedics Building
+    ↓
+Floor 2
+    ↓
+Orthopaedic Ward
+    ↓
+Bed 204
+
+### Bed information
+
+- Bed ID.
+- Building.
+- Floor.
+- Ward.
+- Bed Number.
+- Bed Category.
+- Occupancy Status.
+- Last Updated.
+- Reservation Status.
+
+Statuses:
+
+- Available.
+- Occupied.
+- Reserved.
+- Under Maintenance.
+- Cleaning.
+
+Use Redis caching and WebSocket broadcasts to provide real-time availability updates.
+
+Patients may view availability without receiving access to private patient information.
+
+Actual bed allocation must require authorized hospital staff confirmation.
+
+Clearly indicate that displayed availability is subject to confirmation by the hospital.
+
+---
+
+# 13. WAYFINDER AND INDOOR NAVIGATION
+
+Build an indoor hospital navigation module.
+
+Patients should be able to navigate to:
+
+- OPD Building.
+- Department.
+- Doctor Cabin.
+- Diagnostic Centre.
+- Emergency Department.
+- ICU.
+- General Ward.
+- Pharmacy.
+- Registration Counter.
+
+Use Leaflet for outdoor maps where appropriate and SVG or a node-edge graph for indoor navigation.
+
+Display:
+
+- Building Name.
+- Floor.
+- Destination Room.
+- Route Instructions.
+- Estimated Walking Distance, when available.
+
+Example:
+
+Your destination:
+
+Orthopaedics OPD
+Building B → Floor 2 → Cabin 07
+
+Allow hospital administrators to configure building maps and navigation nodes.
+
+---
+
+# 14. HOSPITAL STAFF / ADMINISTRATION PORTAL
+
+Create a centralized Hospital Administration Dashboard.
+
+Administrative modules:
+
+1. Patient Management.
+2. Doctor Management.
+3. Department Management.
+4. OPD Schedule Management.
+5. Doctor Set Management.
+6. Token and Queue Monitoring.
+7. Emergency Monitoring.
+8. Bed Inventory Management.
+9. Hospital Building Management.
+10. Staff Management.
+11. Doctor Guide Box Monitoring.
+12. Audit Logs.
+13. Reports and Analytics.
+14. ABDM Integration Settings.
+
+### Access control
+
+Implement role-based permissions.
+
+For example:
+
+- Super Admin: System-wide administration.
+- Hospital Director: Hospital-wide monitoring.
+- HOD: Department-level management.
+- Doctor: Assigned patients and consultations.
+- Nursing / Clinical Staff: Authorized patient and resource operations.
+- Registration Staff: Patient registration and token operations.
+- Resource Manager: Bed inventory management.
+
+Administrative actions must be logged.
+
+---
+
+# 15. DATABASE DESIGN
+
+Use PostgreSQL as the primary database.
+
+Create a normalized database structure.
+
+Required tables:
+
+1. users
+2. roles
+3. user_roles
+4. patients
+5. doctors
+6. departments
+7. doctor_hierarchy
+8. doctor_schedules
+9. doctor_schedule_sets
+10. hospitals
+11. buildings
+12. floors
+13. wards
+14. hospital_beds
+15. queue_tokens
+16. emergency_cases
+17. ambulances
+18. case_groups
+19. case_group_members
+20. group_chat_messages
+21. patient_visits
+22. otp_verifications
+23. notifications
+24. audit_logs
+25. navigation_nodes
+26. navigation_edges
+27. abha_verification_records
+28. fhir_resources
+
+Create:
+
+- schema.sql or Flyway migration scripts.
+- Proper primary and foreign keys.
+- Unique constraints.
+- Database indexes.
+- Enum or reference-based status management.
+- Created and updated timestamps.
+- Appropriate transaction handling.
+
+Use soft deletion where appropriate for healthcare records.
+
+### Required Java entities
+
+- Patient.java
+- Doctor.java
+- QueueToken.java
+- HospitalBed.java
+- GroupChatMessage.java
+
+Also implement all additional entities required by the application.
+
+Use DTOs instead of exposing JPA entities directly through REST APIs.
+
+---
+
+# 16. REDIS IMPLEMENTATION
+
+Use Redis for high-speed operations.
+
+### Token management
+
+Store department-wise live token queues using Sorted Sets.
+
+Support:
+
+- Atomic token allocation.
+- Emergency priority.
+- Normal OPD priority.
+- Queue position calculation.
+- Estimated waiting time.
+- Token status updates.
+
+### Bed caching
+
+Cache:
+
+- Total beds.
+- Available beds.
+- Occupied beds.
+- Department-wise bed availability.
+
+### Pub/Sub
+
+Use Redis Pub/Sub or an appropriate event mechanism for service-level updates.
+
+Ensure that PostgreSQL remains the persistent source of truth.
+
+Implement synchronization, transaction safety, and recovery mechanisms to prevent inconsistent token or bed data.
+
+---
+
+# 17. REST API DESIGN
+
+Create documented REST APIs.
+
+Suggested endpoints:
+
+### Authentication
+
+POST /api/auth/patient/send-otp
+
+POST /api/auth/patient/verify-otp
+
+POST /api/auth/doctor/send-otp
+
+POST /api/auth/doctor/verify-otp
+
+POST /api/auth/ambulance/send-otp
+
+POST /api/auth/ambulance/verify-otp
+
+POST /api/auth/staff/send-otp
+
+POST /api/auth/staff/verify-otp
+
+### Patient
+
+POST /api/patients/register
+
+GET /api/patients/{id}
+
+GET /api/patients/{id}/visits
+
+### Tokens
+
+POST /api/tokens/opd
+
+POST /api/tokens/emergency
+
+GET /api/tokens/{tokenId}
+
+GET /api/tokens/{tokenId}/status
+
+GET /api/tokens/department/{departmentId}/queue
+
+PATCH /api/tokens/{tokenId}/status
+
+### Doctors
+
+GET /api/doctors
+
+GET /api/doctors/{doctorId}
+
+GET /api/doctors/department/{departmentId}
+
+GET /api/doctors/schedules
+
+GET /api/doctors/available-slots
+
+### Beds
+
+GET /api/beds/availability
+
+GET /api/beds/hospital/{hospitalId}
+
+GET /api/beds/department/{departmentId}
+
+PATCH /api/beds/{bedId}/status
+
+### Doctor Guide Box
+
+POST /api/case-groups
+
+GET /api/case-groups/{groupId}
+
+GET /api/case-groups/{groupId}/messages
+
+POST /api/case-groups/{groupId}/messages
+
+### Administration
+
+POST /api/admin/doctors
+
+POST /api/admin/departments
+
+POST /api/admin/schedules
+
+POST /api/admin/beds
+
+GET /api/admin/analytics
+
+Implement request validation, pagination, filtering, and consistent API response structures.
+
+Document the APIs using Swagger / OpenAPI.
+
+---
+
+# 18. WEBSOCKET IMPLEMENTATION
+
+Configure STOMP WebSocket endpoints:
+
+/ws-queue
+
+/ws-chat
+
+/ws-resources
+
+Suggested topics:
+
+/topic/queue/{departmentId}
+
+/topic/token/{tokenId}
+
+/topic/emergency/{hospitalId}
+
+/topic/beds/{hospitalId}
+
+/topic/chat/{groupId}
+
+Implement authenticated subscriptions and server-side authorization.
+
+Do not allow users to subscribe to arbitrary patient conversations or restricted hospital information.
+
+---
+
+# 19. FRONTEND DESIGN AND USER EXPERIENCE
+
+The interface should look like a modern, professional, government healthcare technology platform.
+
+Design references:
+
+- Modern hospital management dashboards.
+- Government digital healthcare portals.
+- Enterprise SaaS dashboards.
+- Clean healthcare applications.
+
+### Design language
+
+Use:
+
+- Professional blue and teal palette.
+- White and light-grey surfaces.
+- Subtle shadows.
+- Rounded cards.
+- Consistent spacing.
+- Lucide icons.
+- Responsive navigation.
+- Accessible typography.
+- Clear status indicators.
+
+Avoid:
+
+- Excessive gradients.
+- Unnecessary animations.
+- Overcrowded dashboards.
+- Tiny text.
+- Excessive decorative elements.
+
+### Required frontend pages
+
+1. Landing Page.
+2. Login Selection Page.
+3. Patient OTP Login.
+4. Doctor OTP Login.
+5. Ambulance OTP Login.
+6. Hospital Staff OTP Login.
+7. Patient Dashboard.
+8. OPD Token Registration.
+9. Token Confirmation.
+10. Live Token Tracking.
+11. Ambulance Dashboard.
+12. Emergency Registration.
+13. Doctor Dashboard.
+14. Doctor Desk.
+15. Doctor Directory.
+16. Doctor Profile.
+17. OPD Schedule Calendar.
+18. Doctor Guide Box.
+19. Available Beds.
+20. Hospital Navigation.
+21. Hospital Staff Dashboard.
+22. Bed Management.
+23. Department Management.
+24. Doctor Management.
+25. Analytics Dashboard.
+
+Create reusable React components.
+
+Implement separate route guards for patient, ambulance, doctor, and staff roles.
+
+Use actual backend API integrations. Do not hardcode dashboard data as the final implementation.
+
+---
+
+# 20. SECURITY AND DATA PRIVACY
+
+Security is mandatory.
+
+Implement:
+
+- Spring Security.
+- JWT authentication.
+- Refresh token rotation.
+- Passwordless OTP authentication.
+- Role-based access control.
+- Input validation.
+- SQL injection protection through parameterized ORM queries.
+- XSS protection.
+- CORS restrictions.
+- API rate limiting.
+- WebSocket authorization.
+- Audit logging.
+- Secure secret management.
+- Sensitive data masking.
+- Restricted patient record access.
+
+Follow applicable Indian digital personal data protection requirements and ABDM integration guidelines.
+
+Use mock ABDM APIs for development.
+
+Do not claim official ABDM certification or production interoperability unless the relevant integration and authorization are actually completed.
+
+Never expose patient medical records to unauthorized doctors or hospital personnel.
+
+Never expose personal contact information in the Doctor Guide Box.
+
+---
+
+# 21. REQUIRED PROJECT STRUCTURE
+
+Create a clean monorepo.
+
+arogyagati/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── layouts/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── contexts/
+│   │   ├── routes/
+│   │   ├── types/
+│   │   └── utils/
+│   └── package.json
+│
+├── backend/
+│   ├── api-gateway/
+│   ├── identity-service/
+│   ├── patient-service/
+│   ├── token-queue-service/
+│   ├── doctor-service/
+│   ├── resource-service/
+│   ├── communication-service/
+│   ├── wayfinder-service/
+│   └── common/
+│
+├── database/
+│   ├── migrations/
+│   └── seed/
+│
+├── infrastructure/
+│   ├── docker/
+│   └── redis/
+│
+├── docs/
+│   ├── architecture.md
+│   ├── api-documentation.md
+│   └── database-schema.md
+│
+├── docker-compose.yml
+├── .env.example
+└── README.md
+
+You may adjust the structure where technically justified, but preserve clear service boundaries.
+
+---
+
+# 22. IMPLEMENTATION PHASES
+
+Develop the system sequentially.
+
+Do not generate everything in one enormous unstructured response.
+
+### PHASE 1 — Architecture and Project Initialization
+
+- Establish the complete project structure.
+- Configure Java and React environments.
+- Configure Maven and Vite.
+- Configure PostgreSQL and Redis.
+- Create Docker Compose.
+- Create architecture documentation.
+- Configure environment variables.
+
+### PHASE 2 — Database and Entities
+
+- Design database schema.
+- Create migrations.
+- Implement JPA entities.
+- Implement repositories.
+- Implement relationships.
+- Add sample seed data.
+
+### PHASE 3 — Authentication and API Gateway
+
+- Implement all four login types.
+- Implement OTP verification.
+- Implement JWT.
+- Implement role-based authorization.
+- Configure API Gateway.
+- Configure Redis rate limiting.
+
+### PHASE 4 — Patient and Ambulance Workflows
+
+- Patient registration.
+- OPD appointment.
+- OPD token generation.
+- Emergency registration.
+- Ambulance token generation.
+- Live token tracking.
+
+### PHASE 5 — Doctor Management
+
+- Doctor directory.
+- Hierarchy.
+- Doctor profiles.
+- Department management.
+- OPD schedules.
+- Doctor Set A/B/C rotation.
+- Doctor Desk.
+
+### PHASE 6 — Hospital Resources
+
+- Bed inventory.
+- Building and floor management.
+- Bed availability.
+- Bed allocation.
+- Redis caching.
+- Real-time resource updates.
+
+### PHASE 7 — Doctor Guide Box
+
+- Case-specific group creation.
+- Doctor assignment.
+- Secure messaging.
+- WebSocket integration.
+- Patient-visible and staff-internal messages.
+- Notification system.
+
+### PHASE 8 — Wayfinder
+
+- Hospital building configuration.
+- Floor maps.
+- Indoor navigation.
+- Route generation.
+- Destination instructions.
+
+### PHASE 9 — Complete Frontend Integration
+
+- Connect all frontend pages.
+- Connect REST APIs.
+- Implement WebSocket clients.
+- Implement authentication state.
+- Implement role-based routing.
+- Ensure responsive design.
+
+### PHASE 10 — Testing and Deployment
+
+- Unit testing.
+- Integration testing.
+- API testing.
+- WebSocket testing.
+- Security testing.
+- Database testing.
+- Docker deployment.
+- Complete README.
+
+---
+
+# 23. TESTING REQUIREMENTS
+
+The final application must be tested using realistic scenarios.
+
+Scenario 1: Patient OPD
+
+A patient logs in using mobile OTP, selects Orthopaedics, enters patient information, generates an OPD token, receives a doctor assignment, and tracks the queue in real time.
+
+Scenario 2: Emergency Ambulance
+
+An ambulance logs in, registers an accident case, generates an emergency token, and sends the case to the receiving hospital dashboard.
+
+Scenario 3: Doctor Desk
+
+A doctor logs in, views the assigned OPD queue, calls the next patient, and updates the consultation status.
+
+Scenario 4: Doctor Guide Box
+
+A patient asks a question in the assigned case group. The doctor responds. The patient sees the doctor's ID and role without receiving the doctor's personal phone number or email.
+
+Scenario 5: Bed Availability
+
+A patient selects Orthopaedics and sees available beds organized by hospital, building, floor, and bed number.
+
+Scenario 6: OPD Rotation
+
+The system selects the correct doctor team based on the selected appointment date and configured duty schedule.
+
+Scenario 7: Unauthorized Access
+
+A patient attempts to access another patient's case group or medical record. The system denies access.
+
+---
+
+# 24. DEVELOPMENT RULES — STRICTLY FOLLOW
+
+1. Build actual working code, not merely architectural explanations.
+2. Do not create static frontend-only dashboards.
+3. Do not use hardcoded dummy data as the permanent data source.
+4. Do not leave TODOs, empty methods, or incomplete service implementations.
+5. Use proper exception handling.
+6. Use DTOs and validation.
+7. Use transactional database operations where needed.
+8. Keep frontend and backend API contracts consistent.
+9. Implement proper authentication and authorization.
+10. Implement real-time functionality using WebSockets.
+11. Use environment variables for secrets and credentials.
+12. Include database migrations.
+13. Include test cases.
+14. Include seed data for local demonstration.
+15. Make every major dashboard action functional.
+16. Maintain consistent naming conventions.
+17. Provide clear setup and execution instructions.
+18. Do not invent real hospital data, real doctors, or official government integrations.
+
+When an external service is unavailable, implement a working local mock adapter with a clearly documented interface for future production integration.
+
+---
+
+# 25. FINAL EXPECTED DELIVERABLES
+
+At the end, deliver:
+
+1. Complete frontend source code.
+2. Complete backend source code.
+3. PostgreSQL database schema and migrations.
+4. Redis implementation.
+5. Spring Cloud Gateway configuration.
+6. JWT authentication implementation.
+7. WebSocket implementation.
+8. Patient and ambulance workflows.
+9. Doctor management and scheduling.
+10. Doctor Desk dashboard.
+11. Doctor Guide Box.
+12. Bed availability tracker.
+13. Hospital indoor navigation.
+14. ABDM mock integration.
+15. Docker Compose.
+16. Environment configuration template.
+17. API documentation.
+18. Unit and integration tests.
+19. README with installation and execution steps.
+20. Sample administrator, doctor, ambulance, and patient accounts for local testing.
+
+---
+
+# FINAL EXECUTION INSTRUCTION
+
+First inspect the existing workspace and understand the available files, framework configuration, and project structure.
+
+If the workspace is empty, initialize the project.
+
+If an existing implementation is present, preserve valid existing code and extend it rather than unnecessarily rebuilding everything.
+
+Start with Phase 1 and continue through all subsequent phases in order.
+
+After each phase:
+
+- Create the actual files.
+- Verify imports and dependencies.
+- Compile the backend.
+- Build the frontend.
+- Run relevant tests.
+- Fix errors before proceeding.
+- Update the documentation.
+
+Maintain a development progress checklist.
+
+Do not stop after producing the architecture or frontend design.
+
+Your ultimate objective is to deliver a functional, integrated, locally runnable ArogyaGati Government Hospital Management Platform that follows the complete workflow and technical architecture described in this specification.
