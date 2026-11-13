@@ -12,8 +12,8 @@ import {
   INITIAL_CASE_GROUPS, 
   INITIAL_GUIDE_MESSAGES,
   MOCK_ABHA_RECORDS
-} from './src/services/mockData';
-import { QueueToken, HospitalBed, EmergencyCase, DoctorGuideMessage, CaseGroup, BedStatus, TokenStatus } from './src/types';
+} from './frontend/src/services/mockData';
+import { QueueToken, HospitalBed, EmergencyCase, DoctorGuideMessage, CaseGroup, BedStatus, TokenStatus } from './frontend/src/types';
 
 dotenv.config();
 
