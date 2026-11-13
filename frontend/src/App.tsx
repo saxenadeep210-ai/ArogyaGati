@@ -1,204 +1,174 @@
-import React, { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { LandingPage } from './components/LandingPage';
-import { LoginPage } from './components/LoginPage';
-import { PatientDashboard } from './components/PatientDashboard';
-import { LiveTokenTracker } from './components/LiveTokenTracker';
-import { AmbulanceDashboard } from './components/AmbulanceDashboard';
-import { DoctorDesk } from './components/DoctorDesk';
-import { DoctorGuideBox } from './components/DoctorGuideBox';
-import { BedTracker } from './components/BedTracker';
-import { HospitalWayfinder } from './components/HospitalWayfinder';
-import { DoctorDirectory } from './components/DoctorDirectory';
-import { HospitalStaffDashboard } from './components/HospitalStaffDashboard';
-import { LoginModal } from './components/LoginModal';
-import { OpdRegistrationModal } from './components/OpdRegistrationModal';
-import { MedicalHistoryModal } from './components/MedicalHistoryModal';
-import { AbhaCardModal } from './components/AbhaCardModal';
-import { hospitalStore } from './services/hospitalStore';
-import { QueueToken, Doctor, UserRole } from './types';
+import React from 'react';
+import { BrowserRouter, Link, useLocation, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { AppRoutes } from './routes/AppRoutes';
+import { DEMO_CREDENTIALS } from './services/mockAuthService';
+import { Sparkles, LayoutGrid } from 'lucide-react';
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('landing');
-  
-  // Modals state
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [opdModalOpen, setOpdModalOpen] = useState(false);
-  const [historyModalOpen, setHistoryModalOpen] = useState(false);
-  const [abhaModalOpen, setAbhaModalOpen] = useState(false);
-  const [selectedCaseGroupId, setSelectedCaseGroupId] = useState<string | undefined>(undefined);
+const QuickRoleBar: React.FC = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleOpenCaseChat = (groupId: string) => {
-    setSelectedCaseGroupId(groupId);
-    setActiveTab('guide-box');
-  };
-
-  const handleSelectDoctorForOpd = (doc: Doctor) => {
-    setOpdModalOpen(true);
-  };
-
-  const handleLoginSuccess = (role: UserRole) => {
-    if (role === 'PATIENT') setActiveTab('patient-dashboard');
-    else if (role === 'AMBULANCE') setActiveTab('ambulance-dashboard');
-    else if (role === 'DOCTOR') setActiveTab('doctor-desk');
-    else setActiveTab('admin-dashboard');
+  // Instant 1-click evaluator role switcher for hackathon judges
+  const handleSwitchTo = (roleKey: 'patient' | 'doctor' | 'admin' | 'ambulance') => {
+    if (roleKey === 'patient') {
+      const cred = DEMO_CREDENTIALS.patient;
+      login(
+        {
+          id: 'USR-PAT-9812',
+          name: cred.name,
+          mobile: cred.mobile,
+          email: cred.email,
+          abhaId: cred.abhaId,
+          role: 'PATIENT',
+          portal: 'patient',
+          token: `evaluator_token_pat_${Date.now()}`,
+          lastLogin: new Date().toISOString(),
+        },
+        `token_patient_${Date.now()}`
+      );
+      navigate('/dashboard/patient');
+    } else if (roleKey === 'doctor') {
+      const doc = DEMO_CREDENTIALS.doctor;
+      login(
+        {
+          id: doc.doctorId,
+          name: doc.name,
+          email: doc.email,
+          mobile: doc.mobile,
+          doctorId: doc.doctorId,
+          department: doc.department,
+          designation: doc.designation,
+          role: 'DOCTOR',
+          portal: 'doctor',
+          token: `evaluator_token_doc_${Date.now()}`,
+          lastLogin: new Date().toISOString(),
+        },
+        `token_doc_${Date.now()}`
+      );
+      navigate('/dashboard/doctor');
+    } else if (roleKey === 'admin') {
+      const adm = DEMO_CREDENTIALS.admin;
+      login(
+        {
+          id: 'ADMIN-01-ROOT',
+          name: adm.name,
+          email: adm.email,
+          mobile: adm.mobile,
+          staffId: adm.adminId,
+          department: adm.department,
+          designation: adm.designation,
+          role: 'ADMIN',
+          portal: 'admin',
+          mfaVerified: true,
+          token: `evaluator_token_adm_${Date.now()}`,
+          lastLogin: new Date().toISOString(),
+        },
+        `token_admin_${Date.now()}`
+      );
+      navigate('/dashboard/admin');
+    } else if (roleKey === 'ambulance') {
+      const amb = DEMO_CREDENTIALS.ambulance;
+      login(
+        {
+          id: 'AMB-VEH-108',
+          name: amb.name,
+          mobile: amb.mobile,
+          vehicleId: amb.vehicleId,
+          staffId: amb.driverId,
+          department: amb.department,
+          designation: amb.designation,
+          role: 'AMBULANCE_DRIVER',
+          portal: 'ambulance',
+          token: `evaluator_token_amb_${Date.now()}`,
+          lastLogin: new Date().toISOString(),
+        },
+        `token_ambulance_${Date.now()}`
+      );
+      navigate('/dashboard/ambulance');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/70 font-sans text-slate-800 flex flex-col antialiased selection:bg-teal-500 selection:text-white">
-      
-      {/* Top Navigation */}
-      <Navbar
-        onOpenLogin={() => setActiveTab('login')}
-        onNavigateHome={() => setActiveTab('landing')}
-        onNavigateToTab={(tab: string) => setActiveTab(tab)}
-        activeTab={activeTab}
-      />
-
-      {/* Main Content Area */}
-      <main className="flex-1">
-        {activeTab === 'landing' && (
-          <LandingPage
-            onNavigateToTab={(tab: string) => setActiveTab(tab)}
-            onOpenLogin={() => setActiveTab('login')}
-            onOpenOpdRegistration={() => setOpdModalOpen(true)}
-          />
-        )}
-
-        {activeTab === 'login' && (
-          <LoginPage
-            onSuccess={handleLoginSuccess}
-            onNavigateHome={() => setActiveTab('landing')}
-          />
-        )}
-
-        {activeTab === 'patient-dashboard' && (
-          <PatientDashboard
-            onNavigateToTab={(tab: string) => setActiveTab(tab)}
-            onOpenOpdRegistration={() => setOpdModalOpen(true)}
-            onOpenMedicalHistory={() => setHistoryModalOpen(true)}
-            onOpenAbhaCard={() => setAbhaModalOpen(true)}
-          />
-        )}
-
-        {activeTab === 'live-token' && (
-          <LiveTokenTracker
-            onNavigateToTab={(tab: string) => setActiveTab(tab)}
-            onOpenOpdRegistration={() => setOpdModalOpen(true)}
-          />
-        )}
-
-        {activeTab === 'ambulance-dashboard' && (
-          <AmbulanceDashboard />
-        )}
-
-        {activeTab === 'doctor-desk' && (
-          <DoctorDesk
-            onOpenCaseChat={handleOpenCaseChat}
-          />
-        )}
-
-        {activeTab === 'guide-box' && (
-          <DoctorGuideBox
-            initialGroupId={selectedCaseGroupId}
-          />
-        )}
-
-        {activeTab === 'beds' && (
-          <BedTracker />
-        )}
-
-        {activeTab === 'wayfinder' && (
-          <HospitalWayfinder />
-        )}
-
-        {activeTab === 'doctors' && (
-          <DoctorDirectory
-            onSelectDoctorForOpd={handleSelectDoctorForOpd}
-          />
-        )}
-
-        {activeTab === 'admin-dashboard' && (
-          <HospitalStaffDashboard />
-        )}
-      </main>
-
-      {/* Floating Fast Role Bar at bottom for effortless evaluator switching */}
-      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 backdrop-blur-md text-white px-3 py-2 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2 text-xs">
-        <span className="text-[11px] font-bold text-slate-400 pl-1 hidden sm:inline">
-          Quick Portal Switcher:
-        </span>
-        <button
-          onClick={() => {
-            hospitalStore.loginAsRole('PATIENT');
-            setActiveTab('patient-dashboard');
-          }}
-          className={`px-2.5 py-1 rounded-xl font-bold transition ${
-            activeTab === 'patient-dashboard' ? 'bg-emerald-500 text-slate-950' : 'hover:bg-slate-800 text-slate-300'
-          }`}
-        >
-          Patient
-        </button>
-        <button
-          onClick={() => {
-            hospitalStore.loginAsRole('AMBULANCE');
-            setActiveTab('ambulance-dashboard');
-          }}
-          className={`px-2.5 py-1 rounded-xl font-bold transition ${
-            activeTab === 'ambulance-dashboard' ? 'bg-red-500 text-white' : 'hover:bg-slate-800 text-slate-300'
-          }`}
-        >
-          Ambulance 108
-        </button>
-        <button
-          onClick={() => {
-            hospitalStore.loginAsRole('DOCTOR', 'DOC-ORTHO-1001');
-            setActiveTab('doctor-desk');
-          }}
-          className={`px-2.5 py-1 rounded-xl font-bold transition ${
-            activeTab === 'doctor-desk' ? 'bg-blue-500 text-white' : 'hover:bg-slate-800 text-slate-300'
-          }`}
-        >
-          Doctor Desk
-        </button>
-        <button
-          onClick={() => {
-            hospitalStore.loginAsRole('STAFF_ADMIN');
-            setActiveTab('admin-dashboard');
-          }}
-          className={`px-2.5 py-1 rounded-xl font-bold transition ${
-            activeTab === 'admin-dashboard' ? 'bg-purple-500 text-white' : 'hover:bg-slate-800 text-slate-300'
-          }`}
-        >
-          Staff Admin
-        </button>
+    <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-md text-white px-3.5 py-2 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2 text-xs">
+      <div className="flex items-center gap-1.5 pl-1 text-slate-400 font-semibold text-[11px] hidden sm:flex">
+        <Sparkles className="w-3 h-3 text-amber-400" />
+        <span>Hackathon Fast Switch:</span>
       </div>
 
-      {/* Modals */}
-      <LoginModal
-        isOpen={loginModalOpen}
-        onClose={() => setLoginModalOpen(false)}
-        onSuccess={handleLoginSuccess}
-      />
+      <Link
+        to="/login"
+        className={`px-2.5 py-1 rounded-xl font-bold transition flex items-center gap-1 ${
+          location.pathname === '/login'
+            ? 'bg-white text-slate-950 shadow-xs'
+            : 'hover:bg-slate-800 text-slate-300'
+        }`}
+      >
+        <LayoutGrid className="w-3 h-3" />
+        <span>Portals</span>
+      </Link>
 
-      <OpdRegistrationModal
-        isOpen={opdModalOpen}
-        onClose={() => setOpdModalOpen(false)}
-        onTokenGenerated={() => {
-          setActiveTab('live-token');
-        }}
-      />
+      <button
+        type="button"
+        onClick={() => handleSwitchTo('patient')}
+        className={`px-2.5 py-1 rounded-xl font-bold transition cursor-pointer ${
+          location.pathname === '/dashboard/patient'
+            ? 'bg-[#3435D8] text-white shadow-xs'
+            : 'hover:bg-slate-800 text-slate-300'
+        }`}
+      >
+        Patient
+      </button>
 
-      <MedicalHistoryModal
-        isOpen={historyModalOpen}
-        onClose={() => setHistoryModalOpen(false)}
-      />
+      <button
+        type="button"
+        onClick={() => handleSwitchTo('doctor')}
+        className={`px-2.5 py-1 rounded-xl font-bold transition cursor-pointer ${
+          location.pathname === '/dashboard/doctor'
+            ? 'bg-[#2424B8] text-white shadow-xs'
+            : 'hover:bg-slate-800 text-slate-300'
+        }`}
+      >
+        Doctor Desk
+      </button>
 
-      <AbhaCardModal
-        isOpen={abhaModalOpen}
-        onClose={() => setAbhaModalOpen(false)}
-      />
+      <button
+        type="button"
+        onClick={() => handleSwitchTo('admin')}
+        className={`px-2.5 py-1 rounded-xl font-bold transition cursor-pointer ${
+          location.pathname === '/dashboard/admin'
+            ? 'bg-purple-600 text-white shadow-xs'
+            : 'hover:bg-slate-800 text-slate-300'
+        }`}
+      >
+        Admin
+      </button>
 
+      <button
+        type="button"
+        onClick={() => handleSwitchTo('ambulance')}
+        className={`px-2.5 py-1 rounded-xl font-bold transition cursor-pointer ${
+          location.pathname === '/dashboard/ambulance'
+            ? 'bg-[#DC4545] text-white shadow-xs'
+            : 'hover:bg-slate-800 text-slate-300'
+        }`}
+      >
+        Ambulance 108
+      </button>
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <div className="min-h-screen bg-[#F5F6FC] font-sans text-[#171B2C] antialiased">
+          <AppRoutes />
+          <QuickRoleBar />
+        </div>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
