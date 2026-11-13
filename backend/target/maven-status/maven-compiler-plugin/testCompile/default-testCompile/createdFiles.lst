@@ -1,0 +1,6 @@
+org\arogyagati\service\DataCorrectionServiceTest.class
+org\arogyagati\security\AuditHashChainServiceTest.class
+org\arogyagati\service\DoctorGuideBoxSecurityTest.class
+org\arogyagati\security\Argon2PasswordServiceTest.class
+org\arogyagati\security\DataEncryptionServiceTest.class
+org\arogyagati\service\FileSecurityScannerServiceTest.class
