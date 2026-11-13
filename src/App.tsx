@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { LandingPage } from './components/LandingPage';
+import { LoginPage } from './components/LoginPage';
 import { PatientDashboard } from './components/PatientDashboard';
 import { LiveTokenTracker } from './components/LiveTokenTracker';
 import { AmbulanceDashboard } from './components/AmbulanceDashboard';
@@ -15,7 +16,7 @@ import { OpdRegistrationModal } from './components/OpdRegistrationModal';
 import { MedicalHistoryModal } from './components/MedicalHistoryModal';
 import { AbhaCardModal } from './components/AbhaCardModal';
 import { hospitalStore } from './services/hospitalStore';
-import { QueueToken, Doctor } from './types';
+import { QueueToken, Doctor, UserRole } from './types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('landing');
@@ -36,12 +37,19 @@ export default function App() {
     setOpdModalOpen(true);
   };
 
+  const handleLoginSuccess = (role: UserRole) => {
+    if (role === 'PATIENT') setActiveTab('patient-dashboard');
+    else if (role === 'AMBULANCE') setActiveTab('ambulance-dashboard');
+    else if (role === 'DOCTOR') setActiveTab('doctor-desk');
+    else setActiveTab('admin-dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-slate-100/70 font-sans text-slate-800 flex flex-col antialiased selection:bg-teal-500 selection:text-white">
       
       {/* Top Navigation */}
       <Navbar
-        onOpenLogin={() => setLoginModalOpen(true)}
+        onOpenLogin={() => setActiveTab('login')}
         onNavigateHome={() => setActiveTab('landing')}
         onNavigateToTab={(tab: string) => setActiveTab(tab)}
         activeTab={activeTab}
@@ -52,8 +60,15 @@ export default function App() {
         {activeTab === 'landing' && (
           <LandingPage
             onNavigateToTab={(tab: string) => setActiveTab(tab)}
-            onOpenLogin={() => setLoginModalOpen(true)}
+            onOpenLogin={() => setActiveTab('login')}
             onOpenOpdRegistration={() => setOpdModalOpen(true)}
+          />
+        )}
+
+        {activeTab === 'login' && (
+          <LoginPage
+            onSuccess={handleLoginSuccess}
+            onNavigateHome={() => setActiveTab('landing')}
           />
         )}
 
@@ -163,12 +178,7 @@ export default function App() {
       <LoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
-        onSuccess={(role) => {
-          if (role === 'PATIENT') setActiveTab('patient-dashboard');
-          else if (role === 'AMBULANCE') setActiveTab('ambulance-dashboard');
-          else if (role === 'DOCTOR') setActiveTab('doctor-desk');
-          else setActiveTab('admin-dashboard');
-        }}
+        onSuccess={handleLoginSuccess}
       />
 
       <OpdRegistrationModal

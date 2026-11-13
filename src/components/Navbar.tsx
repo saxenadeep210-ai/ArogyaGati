@@ -10,11 +10,15 @@ import {
   Truck,
   HeartPulse,
   User,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Menu,
+  X,
+  LogIn,
+  ChevronDown
 } from 'lucide-react';
 import { hospitalStore } from '../services/hospitalStore';
 import { HOSPITAL_INFO } from '../services/mockData';
-import { AuthUser } from '../types';
+import { AuthUser, UserRole } from '../types';
 
 interface NavbarProps {
   onOpenLogin: () => void;
@@ -31,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [user, setUser] = useState<AuthUser | null>(hospitalStore.getUser());
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
-  const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     return hospitalStore.subscribe(() => {
@@ -39,39 +43,29 @@ export const Navbar: React.FC<NavbarProps> = ({
     });
   }, []);
 
-  const handleRoleSwitch = (role: 'PATIENT' | 'AMBULANCE' | 'DOCTOR' | 'STAFF_ADMIN', docId?: string) => {
+  const handleRoleSwitch = (role: UserRole, docId?: string) => {
     hospitalStore.loginAsRole(role, docId);
     setRoleDropdownOpen(false);
+    setMobileMenuOpen(false);
     if (role === 'PATIENT') onNavigateToTab('patient-dashboard');
     else if (role === 'AMBULANCE') onNavigateToTab('ambulance-dashboard');
     else if (role === 'DOCTOR') onNavigateToTab('doctor-desk');
     else if (role === 'STAFF_ADMIN') onNavigateToTab('admin-dashboard');
   };
 
-  const getRoleBadge = () => {
-    if (!user) return null;
-    switch (user.role) {
-      case 'PATIENT':
-        return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
-          <User className="w-3.5 h-3.5" /> Citizen / Patient
-        </span>;
-      case 'AMBULANCE':
-        return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-300">
-          <Truck className="w-3.5 h-3.5" /> Ambulance 108 EMT
-        </span>;
-      case 'DOCTOR':
-        return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300">
-          <Stethoscope className="w-3.5 h-3.5" /> Doctor ({user.doctorId || 'HOD'})
-        </span>;
-      case 'STAFF_ADMIN':
-        return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-300">
-          <SlidersHorizontal className="w-3.5 h-3.5" /> Hospital Staff / Admin
-        </span>;
-    }
-  };
+  const navItems = [
+    { id: 'landing', label: 'Home' },
+    { id: 'patient-dashboard', label: 'Patient Portal' },
+    { id: 'live-token', label: 'Live Queue' },
+    { id: 'beds', label: 'Bed Tracker' },
+    { id: 'doctors', label: 'Doctor Directory' },
+    { id: 'guide-box', label: 'Doctor Guide Box' },
+    { id: 'wayfinder', label: 'Wayfinder' },
+    { id: 'admin-dashboard', label: 'Staff Admin' },
+  ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-40 bg-white border-b border-slate-200/80 shadow-sm backdrop-blur-md bg-white/95">
       {/* Top Tiranga Government Strip */}
       <div className="h-1.5 w-full grid grid-cols-3">
         <div className="bg-[#FF9933]"></div>
@@ -79,296 +73,191 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="bg-[#138808]"></div>
       </div>
 
-      {/* Main Bar */}
+      {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
           
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigateHome}>
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-700 to-teal-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 ring-2 ring-blue-100">
+          <div 
+            className="flex items-center gap-3 cursor-pointer select-none group" 
+            onClick={onNavigateHome}
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-700 to-teal-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition">
               <HeartPulse className="w-6 h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-black tracking-tight text-slate-900">
-                  Arogya<span className="text-blue-600">Gati</span>
+                  Arogya<span className="text-blue-700">Gati</span>
                 </span>
-                <span className="hidden sm:inline-flex items-center text-[11px] font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 uppercase">
+                <span className="hidden sm:inline-flex items-center text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 uppercase">
                   Govt of UP / ABDM
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium hidden md:block">
+              <p className="text-[11px] text-slate-500 font-medium hidden md:block">
                 {HOSPITAL_INFO.shortName} • Smart Patient Coordination
               </p>
             </div>
           </div>
 
-          {/* Quick Nav Links */}
+          {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-1">
-            <button
-              onClick={() => onNavigateToTab('patient-dashboard')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'patient-dashboard' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Patient Portal
-            </button>
-            <button
-              onClick={() => onNavigateToTab('live-token')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'live-token' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Live OPD Queue
-            </button>
-            <button
-              onClick={() => onNavigateToTab('beds')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'beds' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Bed Availability
-            </button>
-            <button
-              onClick={() => onNavigateToTab('doctors')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'doctors' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Doctor Directory
-            </button>
-            <button
-              onClick={() => onNavigateToTab('guide-box')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'guide-box' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Doctor Guide Box
-            </button>
-            <button
-              onClick={() => onNavigateToTab('wayfinder')}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition ${
-                activeTab === 'wayfinder' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Campus Wayfinder
-            </button>
+            {navItems.map(item => (
+              <button
+                key={item.id}
+                onClick={() => onNavigateToTab(item.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                  activeTab === item.id
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </nav>
 
-          {/* Right Controls: Emergency SOS, Role Switcher, Auth */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Controls: SOS 108, Role Switcher, Sign-In */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             
-            {/* Emergency SOS Button */}
-            <button
-              onClick={() => setEmergencyModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 shadow-sm shadow-red-500/30 transition animate-pulse"
+            {/* 108 SOS Quick Call */}
+            <a
+              href="tel:108"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5 shadow-sm shadow-red-500/20 transition"
               title="Emergency 108 Ambulance Hotline"
             >
               <PhoneCall className="w-3.5 h-3.5" />
               <span>SOS 108</span>
-            </button>
+            </a>
 
-            {/* Quick Role Switcher Dropdown (Crucial for Reviewer testing) */}
+            {/* Quick Role Switcher Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 flex items-center gap-1.5 transition"
-                title="Quick Role Switcher for instant verification"
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1.5 transition"
+                title="Switch portal role instantly"
               >
-                <UserCheck className="w-3.5 h-3.5 text-blue-600" />
-                <span className="hidden sm:inline">Role:</span>
-                <span className="font-semibold text-slate-900">
-                  {user ? user.role.replace('_', ' ') : 'Select'}
+                <UserCheck className="w-3.5 h-3.5 text-blue-700" />
+                <span className="hidden sm:inline text-slate-500">Role:</span>
+                <span className="font-bold text-slate-900">
+                  {user ? (user.role === 'PATIENT' ? 'Patient' :
+                           user.role === 'AMBULANCE' ? '108 EMT' :
+                           user.role === 'DOCTOR' ? 'Doctor Desk' : 'Staff Admin') : 'Select'}
                 </span>
+                <ChevronDown className="w-3 h-3 text-slate-500" />
               </button>
 
               {roleDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="px-3 py-1.5 border-b border-slate-100">
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                      Switch Role for Testing:
-                    </p>
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50">
+                  <div className="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      Switch Active Portal
+                    </span>
+                    <span className="text-[10px] text-teal-600 font-bold">Fast Switch</span>
                   </div>
 
                   <button
                     onClick={() => handleRoleSwitch('PATIENT')}
-                    className="w-full text-left px-3 py-2 hover:bg-emerald-50 flex items-center gap-2.5 transition text-xs"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-emerald-50 flex items-center gap-3 transition text-xs"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                      P
+                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                      <User className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800">1. Citizen / Patient</p>
-                      <p className="text-[11px] text-slate-500">Ramesh Sharma (OPD-ORTHO-039)</p>
+                      <div className="font-bold text-slate-900">Patient / Citizen</div>
+                      <div className="text-[10px] text-slate-500">OPD booking, tokens & guide box</div>
                     </div>
                   </button>
 
                   <button
                     onClick={() => handleRoleSwitch('AMBULANCE')}
-                    className="w-full text-left px-3 py-2 hover:bg-red-50 flex items-center gap-2.5 transition text-xs"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-red-50 flex items-center gap-3 transition text-xs"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold">
-                      A
+                    <div className="w-8 h-8 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold">
+                      <Truck className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800">2. Ambulance 108 EMT</p>
-                      <p className="text-[11px] text-slate-500">Rajveer Tyagi (AMB-UP80-108)</p>
+                      <div className="font-bold text-slate-900">Ambulance 108 EMT</div>
+                      <div className="text-[10px] text-slate-500">Emergency trauma dispatch</div>
                     </div>
                   </button>
 
                   <button
                     onClick={() => handleRoleSwitch('DOCTOR', 'DOC-ORTHO-1001')}
-                    className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2.5 transition text-xs"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-blue-50 flex items-center gap-3 transition text-xs"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-                      D
+                    <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold">
+                      <Stethoscope className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800">3. Doctor (HOD Ortho)</p>
-                      <p className="text-[11px] text-slate-500">Prof. (Dr.) Arvind Mehta (Cabin 07)</p>
+                      <div className="font-bold text-slate-900">Doctor Desk (HOD)</div>
+                      <div className="text-[10px] text-slate-500">Call patients & write prescriptions</div>
                     </div>
                   </button>
 
                   <button
                     onClick={() => handleRoleSwitch('STAFF_ADMIN')}
-                    className="w-full text-left px-3 py-2 hover:bg-purple-50 flex items-center gap-2.5 transition text-xs"
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-purple-50 flex items-center gap-3 transition text-xs"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                      S
+                    <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold">
+                      <SlidersHorizontal className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-800">4. Hospital Staff / Admin</p>
-                      <p className="text-[11px] text-slate-500">Medical Superintendent Portal</p>
+                      <div className="font-bold text-slate-900">Hospital Staff Admin</div>
+                      <div className="text-[10px] text-slate-500">Bed matrix & doctor schedule sets</div>
                     </div>
                   </button>
-
-                  <div className="border-t border-slate-100 mt-1 pt-1 px-3">
-                    <button
-                      onClick={() => {
-                        hospitalStore.resetToDefaultSeed();
-                        setRoleDropdownOpen(false);
-                      }}
-                      className="w-full text-left py-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1.5"
-                    >
-                      <RotateCcw className="w-3 h-3" /> Reset Demo Data
-                    </button>
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* User display or Login button */}
-            {user ? (
-              <div className="flex items-center gap-2">
-                <div className="hidden md:block text-right">
-                  <div className="text-xs font-bold text-slate-800">{user.name}</div>
-                  <div className="text-[10px] text-slate-500 font-medium">
-                    {user.abhaId ? `ABHA: ${user.abhaId}` : (user.doctorId || user.staffId || user.ambulanceId || user.mobile)}
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    hospitalStore.setUser(null);
-                    onNavigateHome();
-                  }}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-100 transition"
-                  title="Logout"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={onOpenLogin}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition"
-              >
-                Sign In
-              </button>
-            )}
+            {/* Dedicated Login / Portal Access Button */}
+            <button
+              onClick={() => onNavigateToTab('login')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                activeTab === 'login'
+                  ? 'bg-blue-700 text-white shadow-md shadow-blue-500/20'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white'
+              }`}
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sign In</span>
+            </button>
 
+            {/* Mobile Hamburger Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 lg:hidden"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
 
         </div>
-      </div>
 
-      {/* Role Indicator Bar */}
-      <div className="bg-slate-50 border-t border-slate-100 px-4 py-1.5 text-xs text-slate-600 flex items-center justify-between">
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-slate-500 hidden sm:inline">Active Session:</span>
-            {getRoleBadge()}
-            {user?.departmentName && (
-              <span className="text-[11px] text-slate-500 hidden md:inline">
-                • {user.departmentName}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-3 text-[11px] font-medium text-slate-500">
-            <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-              Live Queue Connected
-            </span>
-            <span className="hidden sm:inline">|</span>
-            <span className="hidden sm:inline flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> ABDM Compliant (M2/M3)
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Emergency Modal */}
-      {emergencyModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-2 border-red-500 animate-in zoom-in-95">
-            <div className="flex items-center gap-3 text-red-600 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center font-bold">
-                <PhoneCall className="w-6 h-6 animate-bounce" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-slate-900">Emergency 108 Services</h3>
-                <p className="text-xs text-red-600 font-semibold">Immediate Medical Response</p>
-              </div>
-            </div>
-
-            <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-              For severe road accidents, acute myocardial infarction (heart attack), stroke, or critical trauma, connect immediately with Government of UP 108 Emergency Ambulance or S.N. Medical College Emergency Casualty.
-            </p>
-
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 mb-5 space-y-2 text-xs">
-              <div className="flex justify-between items-center font-semibold text-slate-800">
-                <span>Free Ambulance Helpline:</span>
-                <span className="text-red-700 font-bold text-sm">108</span>
-              </div>
-              <div className="flex justify-between items-center font-semibold text-slate-800">
-                <span>S.N. Hospital Casualty Desk:</span>
-                <span className="text-slate-900 font-mono font-bold">0562-2260353</span>
-              </div>
-              <div className="flex justify-between items-center font-semibold text-slate-800">
-                <span>Emergency Triage Location:</span>
-                <span className="text-slate-700">Trauma Center, Gate 2</span>
-              </div>
-            </div>
-
-            <div className="flex gap-2.5">
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-slate-100 py-3 space-y-1 animate-in fade-in">
+            {navItems.map(item => (
               <button
+                key={item.id}
                 onClick={() => {
-                  setEmergencyModalOpen(false);
-                  onNavigateToTab('ambulance-dashboard');
+                  onNavigateToTab(item.id);
+                  setMobileMenuOpen(false);
                 }}
-                className="flex-1 py-2.5 rounded-xl font-bold text-xs bg-red-600 hover:bg-red-700 text-white shadow-md transition flex items-center justify-center gap-1.5"
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition ${
+                  activeTab === item.id
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
               >
-                <Truck className="w-4 h-4" /> Open Ambulance Portal
+                {item.label}
               </button>
-              <button
-                onClick={() => setEmergencyModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl font-semibold text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-              >
-                Close
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
-      )}
+        )}
+
+      </div>
     </header>
   );
 };

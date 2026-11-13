@@ -567,9 +567,11 @@ app.post('/api/abha/verify', (req: Request, res: Response) => {
 });
 
 // Start Express API Server
-app.listen(PORT, () => {
-  console.log(`[ArogyaGati API Server] running on http://localhost:${PORT}`);
-  console.log(`[ArogyaGati API Server] REST endpoints active for Authentication, Live Tokens, Beds, Ambulance 108 & Doctor Guide Box.`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`[ArogyaGati API Server] running on http://localhost:${PORT}`);
+    console.log(`[ArogyaGati API Server] REST endpoints active for Authentication, Live Tokens, Beds, Ambulance 108 & Doctor Guide Box.`);
+  });
+}
 
 export default app;
