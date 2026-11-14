@@ -15,7 +15,7 @@ import {
   ArrowRight,
   Stethoscope
 } from 'lucide-react';
-import { hospitalStore, playHospitalChime } from '../services/hospitalStore';
+import { hospitalStore, playHospitalChime, playTokenCallAnnouncement } from '../services/hospitalStore';
 import { QueueToken } from '../types';
 import { useTranslation } from '../utils/translations';
 
@@ -48,8 +48,17 @@ export const LiveTokenTracker: React.FC<LiveTokenTrackerProps> = ({
 
   const handlePlayChime = () => {
     setChimePlaying(true);
-    playHospitalChime();
-    setTimeout(() => setChimePlaying(false), 2500);
+    if (activeNow) {
+      playTokenCallAnnouncement(activeNow.tokenNumber, activeNow.roomCabin, isHindi ? 'hi' : 'en');
+    } else {
+      playHospitalChime(
+        isHindi 
+          ? 'एस. एन. मेडिकल कॉलेज लाइव अस्पताल उद्घोषणा प्रणाली सक्रिय है।' 
+          : 'S. N. Medical College live announcement system is operational.',
+        isHindi ? 'hi' : 'en'
+      );
+    }
+    setTimeout(() => setChimePlaying(false), 3000);
   };
 
   const handleSecureLookup = (e?: React.FormEvent, directVal?: string) => {

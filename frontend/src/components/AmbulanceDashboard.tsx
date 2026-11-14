@@ -46,7 +46,12 @@ export const AmbulanceDashboard: React.FC = () => {
 
   const handleRegisterEmergency = (e: React.FormEvent) => {
     e.preventDefault();
-    playHospitalChime();
+    playHospitalChime(
+      isHindi
+        ? `प्राथमिकता 108 आपातकालीन अलर्ट। ${category} मरीज़ आगमन की सूचना।`
+        : `Priority 108 emergency alert. Inbound ${category} patient dispatched to casualty bay.`,
+      isHindi ? 'hi' : 'en'
+    );
 
     const newCase = hospitalStore.registerEmergencyCase({
       ambulanceId: currentUser?.ambulanceId || 'AMB-UP80-108',

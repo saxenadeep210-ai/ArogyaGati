@@ -117,4 +117,50 @@ public class DoctorService {
             );
         }
     }
+
+    /**
+     * Sends message into Guide Box. Ensures strict role-based visibility control.
+     */
+    @Transactional
+    public GroupChatMessage sendGuideBoxMessage(
+            String caseGroupId,
+            UUID senderUserId,
+            String senderDisplayName,
+            String senderRole,
+            String messageText,
+            GroupChatMessage.MessageVisibility requestedVisibility
+    ) {
+        String cleanRole = senderRole != null ? senderRole.toUpperCase().replace("ROLE_", "") : "PATIENT";
+        boolean isStaffOrDoctor = "DOCTOR".equals(cleanRole) || "MEDICAL_STAFF".equals(cleanRole) || "ADMIN".equals(cleanRole);
+
+        // Patients are strictly prohibited from creating STAFF_INTERNAL messages
+        GroupChatMessage.MessageVisibility finalVisibility = requestedVisibility;
+        if (!isStaffOrDoctor) {
+            finalVisibility = GroupChatMessage.MessageVisibility.PATIENT_VISIBLE;
+        }
+        if (finalVisibility == null) {
+            finalVisibility = GroupChatMessage.MessageVisibility.PATIENT_VISIBLE;
+        }
+
+        GroupChatMessage msg = new GroupChatMessage();
+        msg.setCaseGroupId(caseGroupId);
+        msg.setSenderUserId(senderUserId != null ? senderUserId : UUID.randomUUID());
+        msg.setSenderDisplayName(senderDisplayName != null ? senderDisplayName : "Medical Care Team");
+        msg.setSenderRole(cleanRole);
+        msg.setMessageText(messageText);
+        msg.setVisibility(finalVisibility);
+        msg.setCreatedAt(LocalDateTime.now());
+
+        return chatRepository.save(msg);
+    }
+
+    /**
+     * Lists all doctors with optional department filter.
+     */
+    public List<Doctor> getAllDoctors(String departmentId) {
+        if (departmentId != null && !departmentId.isBlank() && !"ALL".equalsIgnoreCase(departmentId)) {
+            return doctorRepository.findByDepartmentId(departmentId);
+        }
+        return doctorRepository.findAll();
+    }
 }

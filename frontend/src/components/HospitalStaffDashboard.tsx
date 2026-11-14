@@ -58,14 +58,35 @@ interface AuditChainBlock {
   verified: boolean;
 }
 
-export const HospitalStaffDashboard: React.FC = () => {
+export type AdminTab = 
+  | 'OVERVIEW' 
+  | 'BEDS' 
+  | 'QUEUES' 
+  | 'DOCTOR_SETS' 
+  | 'DATA_QUALITY' 
+  | 'AUDIT_CHAIN' 
+  | 'SECURITY_MONITOR' 
+  | 'ABDM_GATEWAY';
+
+interface HospitalStaffDashboardProps {
+  activeTab?: AdminTab;
+  onTabChange?: (tab: AdminTab) => void;
+}
+
+export const HospitalStaffDashboard: React.FC<HospitalStaffDashboardProps> = ({
+  activeTab: controlledTab,
+  onTabChange,
+}) => {
   const { t, isHindi } = useTranslation();
   const [beds, setBeds] = useState(hospitalStore.getBeds());
   const [tokens, setTokens] = useState(hospitalStore.getTokens());
   const [emergencyCases, setEmergencyCases] = useState(hospitalStore.getEmergencyCases());
-  const [activeTab, setActiveTab] = useState<
-    'OVERVIEW' | 'BEDS' | 'QUEUES' | 'DOCTOR_SETS' | 'DATA_QUALITY' | 'AUDIT_CHAIN' | 'SECURITY_MONITOR' | 'ABDM_GATEWAY'
-  >('OVERVIEW');
+  const [internalTab, setInternalTab] = useState<AdminTab>('OVERVIEW');
+  const activeTab = controlledTab ?? internalTab;
+  const setActiveTab = (tab: AdminTab) => {
+    if (onTabChange) onTabChange(tab);
+    setInternalTab(tab);
+  };
 
   // Bed Inventory interactive states
   const [bedSearch, setBedSearch] = useState('');

@@ -281,21 +281,6 @@ export const OpdRegistrationModal: React.FC<OpdRegistrationModalProps> = ({
                     </label>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Triage Urgency
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isEmergency}
-                      onChange={e => setIsEmergency(e.target.checked)}
-                      className="rounded text-red-600 focus:ring-red-500"
-                    />
-                    <span className="text-red-700 font-bold">Mark as Urgent Priority / Accident case</span>
-                  </label>
-                </div>
               </div>
 
               <div className="space-y-3">

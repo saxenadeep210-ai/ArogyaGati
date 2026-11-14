@@ -2,6 +2,7 @@ import React from 'react';
 import { Home, Ticket, LayoutGrid, Sparkles, User, Search } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../utils/translations';
 
 interface MobileBottomNavProps {
   onOpenCommandBar: () => void;
@@ -17,6 +18,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, isHindi } = useTranslation();
 
   const isCurrent = (path: string) => location.pathname === path;
 
@@ -40,7 +42,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-current={isCurrent('/login') ? 'page' : undefined}
         >
           <Home className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] leading-tight">Home</span>
+          <span className="text-[10px] leading-tight">{isHindi ? 'होम' : 'Home'}</span>
         </button>
 
         {/* 2. My Token */}
@@ -61,14 +63,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           aria-label="Active Token & OPD Queue"
         >
           <Ticket className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] leading-tight">My Token</span>
+          <span className="text-[10px] leading-tight">{isHindi ? 'मेरा टोकन' : 'My Token'}</span>
         </button>
 
         {/* 3. Command Bar / Omni Search (Center Floating Action) */}
         <button
           type="button"
           onClick={onOpenCommandBar}
-          className="flex flex-col items-center justify-center -mt-4 bg-gradient-to-tr from-blue-700 to-indigo-600 text-white rounded-2xl w-12 h-12 shadow-lg shadow-blue-500/30 mx-auto transition active:scale-95"
+          className="flex flex-col items-center justify-center -mt-4 bg-gradient-to-tr from-[#3435D8] to-indigo-600 text-white rounded-2xl w-12 h-12 shadow-lg shadow-indigo-500/30 mx-auto transition active:scale-95 cursor-pointer"
           aria-label="Open Hospital Omni-Search and Voice Assistant"
         >
           <Search className="w-5 h-5" />
@@ -84,11 +86,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               onOpenCommandBar();
             }
           }}
-          className="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-slate-800 transition"
+          className="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-slate-800 transition cursor-pointer"
           aria-label="Hospital Services"
         >
           <LayoutGrid className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] leading-tight">Services</span>
+          <span className="text-[10px] leading-tight">{isHindi ? 'सेवाएं' : 'Services'}</span>
         </button>
 
         {/* 5. Profile / Role Desk */}
@@ -98,22 +100,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             if (user?.role === 'PATIENT') navigate('/dashboard/patient');
             else if (user?.role === 'DOCTOR') navigate('/dashboard/doctor');
             else if (user?.role === 'ADMIN') navigate('/dashboard/admin');
-            else if (user?.role === 'AMBULANCE_DRIVER') navigate('/dashboard/ambulance');
+            else if (user?.role === 'AMBULANCE') navigate('/dashboard/ambulance');
             else navigate('/login');
           }}
-          className={`flex flex-col items-center justify-center min-h-[44px] min-w-[44px] rounded-xl transition ${
-            location.pathname.startsWith('/dashboard')
-              ? 'text-blue-700 font-bold'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-          aria-label="User Profile & Active Role Portal"
+          className="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] rounded-xl text-slate-500 hover:text-slate-800 transition cursor-pointer"
+          aria-label="User Profile or Portal"
         >
           <User className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] leading-tight">
-            {user ? (user.role === 'DOCTOR' ? 'Desk' : user.role === 'ADMIN' ? 'Admin' : 'Profile') : 'Login'}
-          </span>
+          <span className="text-[10px] leading-tight">{isHindi ? 'प्रोफ़ाइल' : 'Profile'}</span>
         </button>
-
       </div>
     </nav>
   );

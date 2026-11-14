@@ -40,6 +40,25 @@ public class BedService {
         return bedRepository.save(bed);
     }
 
+    @Transactional
+    public HospitalBed admitPatient(String bedId) {
+        HospitalBed bed = bedRepository.findById(bedId)
+                .orElseThrow(() -> new IllegalArgumentException("Hospital bed not found: " + bedId));
+        bed.setStatus(HospitalBed.BedStatus.OCCUPIED);
+        bed.setLastUpdated(LocalDateTime.now());
+        return bedRepository.save(bed);
+    }
+
+    @Transactional
+    public HospitalBed dischargePatient(String bedId) {
+        HospitalBed bed = bedRepository.findById(bedId)
+                .orElseThrow(() -> new IllegalArgumentException("Hospital bed not found: " + bedId));
+        bed.setStatus(HospitalBed.BedStatus.CLEANING);
+        bed.setPatient(null);
+        bed.setLastUpdated(LocalDateTime.now());
+        return bedRepository.save(bed);
+    }
+
     /**
      * Aggregated Transparency Metrics (Zero PII).
      */

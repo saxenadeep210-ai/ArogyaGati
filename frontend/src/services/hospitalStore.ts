@@ -33,36 +33,91 @@ const KEY_EMERGENCY = `${STORAGE_PREFIX}emergency`;
 const KEY_CASE_GROUPS = `${STORAGE_PREFIX}case_groups`;
 const KEY_MESSAGES = `${STORAGE_PREFIX}messages`;
 
-// Play audio chime for hospital announcements using Web Audio API
-export const playHospitalChime = () => {
+// Play audio chime for hospital announcements using Web Audio API + Natural Text-To-Speech
+export const playHospitalChime = (spokenPrompt?: string, lang: 'en' | 'hi' = 'en') => {
   try {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
+    if (AudioContextClass) {
+      const ctx = new AudioContextClass();
 
-    const playTone = (freq: number, start: number, duration: number) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-      
-      gain.gain.setValueAtTime(0.001, ctx.currentTime + start);
-      gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + start + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+      const playTone = (freq: number, start: number, duration: number, peakGain = 0.25) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(peakGain, ctx.currentTime + start + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + start + duration);
-    };
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + duration);
+      };
 
-    // Standard hospital dual chime (F#5 -> C#5 -> A#5)
-    playTone(740, 0, 0.4);
-    playTone(554.37, 0.35, 0.4);
-    playTone(932.33, 0.7, 0.6);
+      // Harmonic 3-Stage Hospital PA Bell Chime (D5 -> F#5 -> A5)
+      playTone(587.33, 0.0, 0.45, 0.22);
+      playTone(739.99, 0.22, 0.45, 0.25);
+      playTone(880.00, 0.44, 0.65, 0.28);
+    }
   } catch {
     // Ignore audio context errors if sound is restricted
   }
+
+  // Natural Text-to-Speech (TTS) Voice Prompt broadcast
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    setTimeout(() => {
+      try {
+        window.speechSynthesis.cancel();
+
+        const defaultPrompt = lang === 'hi'
+          ? 'कृपया ध्यान दें, अगले मरीज़ परामर्श कक्ष में पधारें।'
+          : 'Attention please. Next patient, please proceed to the consultation room.';
+
+        const textToAnnounce = spokenPrompt && spokenPrompt.trim().length > 0
+          ? spokenPrompt
+          : defaultPrompt;
+
+        const utterance = new SpeechSynthesisUtterance(textToAnnounce);
+        utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
+        utterance.rate = 0.92; // Natural, clear hospital announcer pace
+        utterance.pitch = 1.05; // Gentle, clear hospital pitch
+
+        const voices = window.speechSynthesis.getVoices();
+        if (voices && voices.length > 0) {
+          const matchVoice = voices.find(v => {
+            if (lang === 'hi') {
+              return v.lang.startsWith('hi') || v.name.toLowerCase().includes('hindi');
+            }
+            return (
+              v.lang === 'en-IN' ||
+              v.lang === 'en-GB' ||
+              v.name.includes('Natural') ||
+              v.name.includes('Google') ||
+              v.name.includes('India')
+            );
+          });
+          if (matchVoice) {
+            utterance.voice = matchVoice;
+          }
+        }
+
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        // Ignore speech synthesis errors if restricted
+      }
+    }, 650);
+  }
+};
+
+// Specialized token call announcement helper
+export const playTokenCallAnnouncement = (tokenNumber: string, roomCabin: string, lang: 'en' | 'hi' = 'en') => {
+  const cleanToken = tokenNumber.replace(/([A-Z]+)-/g, '$1 ').replace(/-/g, ' ');
+  const prompt = lang === 'hi'
+    ? `कृपया ध्यान दें। टोकन ${cleanToken}, कृपया ${roomCabin} में पधारें।`
+    : `Attention please. Token ${cleanToken}, please proceed to ${roomCabin}.`;
+  playHospitalChime(prompt, lang);
 };
 
 class HospitalStore {

@@ -19,7 +19,7 @@ import {
   PhoneCall,
   UserCheck
 } from 'lucide-react';
-import { hospitalStore, playHospitalChime } from '../services/hospitalStore';
+import { hospitalStore, playHospitalChime, playTokenCallAnnouncement } from '../services/hospitalStore';
 import { QueueToken, Doctor } from '../types';
 import { useTranslation } from '../utils/translations';
 
@@ -63,9 +63,8 @@ export const DoctorDesk: React.FC<DoctorDeskProps> = ({ onOpenCaseChat }) => {
   const completedTokens = deptTokens.filter(tok => tok.status === 'COMPLETED');
   const emergencyTokens = deptTokens.filter(tok => tok.priority === 'EMERGENCY' && tok.status !== 'COMPLETED');
 
-  // Call Next Patient
+  // Call Next Patient with Harmonic Chime & Voice Prompt Announcement
   const handleCallNext = () => {
-    playHospitalChime();
     // Priority: Emergency first, then first waiting token
     const nextToken = waitingTokens.sort((a, b) => {
       if (a.priority === 'EMERGENCY' && b.priority !== 'EMERGENCY') return -1;
@@ -75,8 +74,14 @@ export const DoctorDesk: React.FC<DoctorDeskProps> = ({ onOpenCaseChat }) => {
 
     if (nextToken) {
       hospitalStore.updateTokenStatus(nextToken.id, 'CALLED');
+      playTokenCallAnnouncement(nextToken.tokenNumber, currentDoctor.roomCabin, isHindi ? 'hi' : 'en');
     } else {
-      alert('No more waiting patients in this OPD queue!');
+      playHospitalChime(
+        isHindi
+          ? 'कृपया ध्यान दें, कतार में कोई प्रतीक्षारत मरीज़ नहीं है।'
+          : 'Attention please, no patients are currently waiting in the department queue.',
+        isHindi ? 'hi' : 'en'
+      );
     }
   };
 
@@ -264,7 +269,7 @@ export const DoctorDesk: React.FC<DoctorDeskProps> = ({ onOpenCaseChat }) => {
                   <button
                     onClick={() => {
                       hospitalStore.updateTokenStatus(token.id, 'CALLED');
-                      playHospitalChime();
+                      playTokenCallAnnouncement(token.tokenNumber, currentDoctor.roomCabin, isHindi ? 'hi' : 'en');
                     }}
                     className="px-3 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[10px]"
                   >
@@ -341,7 +346,7 @@ export const DoctorDesk: React.FC<DoctorDeskProps> = ({ onOpenCaseChat }) => {
                       <button
                         onClick={() => {
                           hospitalStore.updateTokenStatus(token.id, 'CALLED');
-                          playHospitalChime();
+                          playTokenCallAnnouncement(token.tokenNumber, currentDoctor.roomCabin, isHindi ? 'hi' : 'en');
                         }}
                         className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 transition cursor-pointer"
                         title="Announce chime to cabin"

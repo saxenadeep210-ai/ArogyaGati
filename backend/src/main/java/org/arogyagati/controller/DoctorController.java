@@ -1,5 +1,6 @@
 package org.arogyagati.controller;
 
+import org.arogyagati.entity.Doctor;
 import org.arogyagati.entity.GroupChatMessage;
 import org.arogyagati.entity.QueueToken;
 import org.arogyagati.service.DoctorService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping({"/api/v1/doctors", "/api/doctors"})
@@ -19,6 +21,11 @@ public class DoctorController {
 
     public DoctorController(DoctorService doctorService) {
         this.doctorService = doctorService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Doctor>> getAllDoctors(@RequestParam(required = false) String departmentId) {
+        return ResponseEntity.ok(doctorService.getAllDoctors(departmentId));
     }
 
     @GetMapping("/{doctorId}/queue")
@@ -49,5 +56,38 @@ public class DoctorController {
                     .orElse("PATIENT");
         }
         return ResponseEntity.ok(doctorService.getCaseGroupMessages(caseGroupId, role));
+    }
+
+    @PostMapping("/guide-box/send")
+    public ResponseEntity<GroupChatMessage> sendGuideBoxMessage(
+            @RequestBody Map<String, String> body,
+            Authentication authentication
+    ) {
+        String caseGroupId = body.get("caseGroupId");
+        String messageText = body.get("messageText");
+        String requestedVisibilityStr = body.getOrDefault("visibility", "PATIENT_VISIBLE");
+
+        GroupChatMessage.MessageVisibility visibility = "STAFF_INTERNAL".equalsIgnoreCase(requestedVisibilityStr)
+                ? GroupChatMessage.MessageVisibility.STAFF_INTERNAL
+                : GroupChatMessage.MessageVisibility.PATIENT_VISIBLE;
+
+        String senderRole = "ROLE_PATIENT";
+        String senderDisplayName = body.getOrDefault("senderDisplayName", "Citizen / Patient");
+        UUID senderId = UUID.randomUUID();
+
+        if (authentication != null) {
+            senderRole = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .findFirst()
+                    .orElse("ROLE_PATIENT");
+            try {
+                senderId = UUID.fromString(authentication.getName());
+            } catch (Exception ignored) {}
+        }
+
+        GroupChatMessage created = doctorService.sendGuideBoxMessage(
+                caseGroupId, senderId, senderDisplayName, senderRole, messageText, visibility
+        );
+        return ResponseEntity.ok(created);
     }
 }

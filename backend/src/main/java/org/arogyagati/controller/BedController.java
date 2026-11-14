@@ -38,4 +38,14 @@ public class BedController {
         HospitalBed.BedStatus status = HospitalBed.BedStatus.valueOf(body.get("status").toUpperCase());
         return ResponseEntity.ok(bedService.updateBedStatus(id, status));
     }
+
+    @PostMapping("/{id}/admit")
+    public ResponseEntity<HospitalBed> admitPatient(@PathVariable String id) {
+        return ResponseEntity.ok(bedService.admitPatient(id));
+    }
+
+    @PostMapping("/{id}/discharge")
+    public ResponseEntity<HospitalBed> dischargePatient(@PathVariable String id) {
+        return ResponseEntity.ok(bedService.dischargePatient(id));
+    }
 }

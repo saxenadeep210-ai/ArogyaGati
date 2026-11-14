@@ -42,6 +42,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/**", "/api/auth/**").permitAll()
                 // Public hospital transparency telemetry (strictly aggregated, zero PII)
                 .requestMatchers("/api/v1/transparency/**", "/api/transparency/**").permitAll()
+                // Public directory and availability endpoints
+                .requestMatchers("/api/v1/departments/**", "/api/departments/**").permitAll()
+                .requestMatchers("/api/v1/doctors", "/api/doctors").permitAll()
+                .requestMatchers("/api/v1/beds", "/api/v1/beds/available", "/api/beds/**").permitAll()
+                .requestMatchers("/api/v1/tokens/lookup/**", "/api/tokens/lookup/**").permitAll()
                 // Health and monitoring
                 .requestMatchers("/api/health/**", "/actuator/**", "/error").permitAll()
                 // WebSocket STOMP endpoint

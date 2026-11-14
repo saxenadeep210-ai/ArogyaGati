@@ -44,8 +44,15 @@ export const PortalSelection: React.FC = () => {
       {/* Top Subtle Indigo Radial Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 bg-gradient-to-b from-indigo-200/35 via-blue-100/20 to-transparent blur-3xl pointer-events-none -z-0" />
 
+      {/* Sovereign National Micro-Strip (Tiranga) */}
+      <div className="w-full h-[2.5px] grid grid-cols-3 fixed top-0 left-0 right-0 z-50">
+        <div className="bg-[#FF9933]"></div>
+        <div className="bg-white border-y border-slate-100"></div>
+        <div className="bg-[#138808]"></div>
+      </div>
+
       {/* Top Header */}
-      <header className="relative z-20 w-full border-b border-slate-200/80 bg-white/85 backdrop-blur-md px-3 sm:px-8 py-3 sticky top-0 shadow-xs">
+      <header className="relative z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md px-3 sm:px-8 py-3 sticky top-0 shadow-xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Logo & Emblem */}
           <Link to="/login" className="flex items-center gap-2 sm:gap-3 group shrink-0">

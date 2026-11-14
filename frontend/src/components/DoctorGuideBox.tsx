@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { hospitalStore } from '../services/hospitalStore';
 import { DoctorGuideMessage, CaseGroup, AuthUser } from '../types';
+import { useTranslation } from '../utils/translations';
 
 interface DoctorGuideBoxProps {
   initialGroupId?: string;
@@ -26,6 +27,7 @@ export const DoctorGuideBox: React.FC<DoctorGuideBoxProps> = ({ initialGroupId }
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(hospitalStore.getUser());
   const [caseGroups, setCaseGroups] = useState<CaseGroup[]>(hospitalStore.getCaseGroups());
   const [activeGroupId, setActiveGroupId] = useState<string>(initialGroupId || caseGroups[0]?.id || 'CASE-GRP-002');
+  const { t, isHindi } = useTranslation();
   
   // Perspective Switcher for evaluation: "View as Patient" vs "View as Doctor Team"
   const [viewPerspective, setViewPerspective] = useState<'PATIENT' | 'DOCTOR'>(
@@ -79,46 +81,50 @@ export const DoctorGuideBox: React.FC<DoctorGuideBoxProps> = ({ initialGroupId }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       
-      {/* Top Banner explaining Doctor Guide Box & Privacy Safeguards */}
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      {/* Top Clean Header Card */}
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-            <span className="text-xs font-bold text-teal-300 uppercase tracking-wider">
-              ArogyaGati Doctor Guide Box
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+            <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">
+              {isHindi ? 'आरोग्यगति डॉक्टर गाइड बॉक्स' : 'ArogyaGati Doctor Guide Box'}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black">
-            Case-Specific Medical Group Care
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            {isHindi ? 'केस-विशिष्ट चिकित्सा समूह परामर्श' : 'Case-Specific Medical Group Care'}
           </h1>
-          <p className="text-xs text-blue-200 mt-1 max-w-2xl">
-            Direct coordination between the patient and their assigned hospital medical team (1 Senior Professor, 1 Associate Professor, 2-3 Junior Residents).
+          <p className="text-xs text-slate-500 mt-1 max-w-2xl">
+            {isHindi 
+              ? 'मरीज़ और उनकी समर्पित अस्पताल मेडिकल टीम (वरिष्ठ प्रोफेसर, एसोसिएट प्रोफेसर एवं रेजिडेंट्स) के बीच सुरक्षित समन्वय।' 
+              : 'Direct coordination between the patient and their assigned hospital medical team (Senior Professor, Associate Professor, and Residents).'}
           </p>
         </div>
 
         {/* Perspective Evaluation Switcher */}
-        <div className="bg-white/10 backdrop-blur-md p-2 rounded-2xl border border-white/20 flex items-center gap-2 self-stretch md:self-auto">
-          <span className="text-xs font-semibold text-blue-200 pl-2">Simulator Perspective:</span>
-          <div className="flex bg-slate-900/60 p-1 rounded-xl">
+        <div className="bg-slate-50 p-1.5 rounded-xl border border-slate-200 flex items-center gap-2 self-stretch md:self-auto text-xs">
+          <span className="text-[11px] font-semibold text-slate-500 pl-1.5">
+            {isHindi ? 'दृष्टिकोण:' : 'View as:'}
+          </span>
+          <div className="flex bg-white p-0.5 rounded-lg border border-slate-200">
             <button
               onClick={() => setViewPerspective('PATIENT')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                viewPerspective === 'PATIENT' ? 'bg-teal-400 text-slate-950 shadow' : 'text-slate-300 hover:text-white'
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                viewPerspective === 'PATIENT' ? 'bg-[#3435D8] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <User className="w-3.5 h-3.5" />
-              <span>View as Patient</span>
+              <User className="w-3 h-3" />
+              <span>{isHindi ? 'मरीज़' : 'Patient'}</span>
             </button>
             <button
               onClick={() => setViewPerspective('DOCTOR')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                viewPerspective === 'DOCTOR' ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:text-white'
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                viewPerspective === 'DOCTOR' ? 'bg-[#2424B8] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>View as Doctor Team</span>
+              <Stethoscope className="w-3 h-3" />
+              <span>{isHindi ? 'चिकित्सक टीम' : 'Doctor Team'}</span>
             </button>
           </div>
         </div>
@@ -131,9 +137,13 @@ export const DoctorGuideBox: React.FC<DoctorGuideBoxProps> = ({ initialGroupId }
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <span className="font-bold block text-sm">Protected Healthcare Privacy Model</span>
+            <span className="font-bold block text-sm">
+              {isHindi ? 'सुरक्षित स्वास्थ्य गोपनीयता मॉडल' : 'Protected Healthcare Privacy Model'}
+            </span>
             <p className="text-[11px] text-emerald-800">
-              Personal telephone numbers and personal emails of doctors are <strong>NEVER</strong> exposed. Messages display masked institutional IDs (e.g. <code>DOC-ORTHO-1042 — Assoc. Professor</code>).
+              {isHindi 
+                ? 'डॉक्टरों के निजी फोन नंबर व ईमेल कभी प्रदर्शित नहीं होते। संदेश केवल आधिकारिक संस्थागत आईडी से प्रेषित होते हैं।' 
+                : 'Personal telephone numbers and personal emails of doctors are NEVER exposed. Messages display masked institutional IDs.'}
             </p>
           </div>
         </div>
@@ -141,12 +151,12 @@ export const DoctorGuideBox: React.FC<DoctorGuideBoxProps> = ({ initialGroupId }
         {viewPerspective === 'PATIENT' ? (
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-emerald-300 text-[11px] font-bold text-emerald-800">
             <EyeOff className="w-4 h-4 text-emerald-600" />
-            <span>Staff-Internal clinical notes are filtered out</span>
+            <span>{isHindi ? 'स्टाफ़-आंतरिक नोट्स सुरक्षित फ़िल्टर' : 'Staff-Internal clinical notes are filtered out'}</span>
           </div>
         ) : (
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-100 border border-blue-300 text-[11px] font-bold text-blue-900">
             <Eye className="w-4 h-4 text-blue-600" />
-            <span>Medical Team Mode: Both Patient & Internal Staff notes visible</span>
+            <span>{isHindi ? 'चिकित्सा टीम मोड: आंतरिक स्टाफ नोट्स दृश्यमान' : 'Medical Team Mode: Both Patient & Internal Staff notes visible'}</span>
           </div>
         )}
       </div>
@@ -158,10 +168,10 @@ export const DoctorGuideBox: React.FC<DoctorGuideBoxProps> = ({ initialGroupId }
         <div className="md:col-span-4 border-r border-slate-200 bg-slate-50/60 p-4 space-y-3">
           <div className="flex items-center justify-between px-2">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Active Case Groups
+              {isHindi ? 'सक्रिय केस समूह' : 'Active Case Groups'}
             </span>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
-              {caseGroups.length} Active
+              {caseGroups.length} {isHindi ? 'सक्रिय' : 'Active'}
             </span>
           </div>
 
