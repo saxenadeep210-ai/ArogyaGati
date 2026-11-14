@@ -34,10 +34,12 @@ public class EmergencyController {
         String bp = (String) body.getOrDefault("bloodPressure", "120/80");
         Integer spo2 = body.get("oxygenSaturationPct") != null ? ((Number) body.get("oxygenSaturationPct")).intValue() : 98;
         Integer gcs = body.get("glasgowComaScale") != null ? ((Number) body.get("glasgowComaScale")).intValue() : 15;
+        String photoData = (String) body.get("photoData");
+        String biometricStatus = (String) body.get("biometricStatus");
 
         EmergencyCase created = emergencyService.registerEmergency(
                 ambulanceId, patientName, patientAge, gender, category, severity,
-                location, eta, pulse, bp, spo2, gcs
+                location, eta, pulse, bp, spo2, gcs, photoData, biometricStatus
         );
         return ResponseEntity.ok(created);
     }

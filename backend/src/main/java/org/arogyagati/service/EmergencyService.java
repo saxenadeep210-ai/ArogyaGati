@@ -104,6 +104,37 @@ public class EmergencyService {
         return saved;
     }
 
+    @Transactional
+    public EmergencyCase registerEmergency(
+            String ambulanceId,
+            String patientName,
+            Integer patientAge,
+            String gender,
+            String category,
+            String severity,
+            String incidentLocation,
+            Integer etaMinutes,
+            Integer pulseBpm,
+            String bloodPressure,
+            Integer oxygenSaturationPct,
+            Integer glasgowComaScale,
+            String photoData,
+            String biometricStatus
+    ) {
+        EmergencyCase emg = registerEmergency(
+                ambulanceId, patientName, patientAge, gender, category, severity,
+                incidentLocation, etaMinutes, pulseBpm, bloodPressure, oxygenSaturationPct, glasgowComaScale
+        );
+        if (photoData != null) emg.setPhotoData(photoData);
+        if (biometricStatus != null) {
+            emg.setBiometricStatus(biometricStatus);
+            if ("MATCHED".equalsIgnoreCase(biometricStatus)) {
+                emg.setIdentityState(EmergencyCase.IdentityState.VERIFIED);
+            }
+        }
+        return emergencyRepository.save(emg);
+    }
+
     /**
      * Post-stabilization identity reconciliation.
      * Reconciles an unidentified emergency record with an authorized verified patient profile.

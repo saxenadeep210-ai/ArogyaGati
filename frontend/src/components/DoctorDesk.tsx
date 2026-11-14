@@ -309,7 +309,23 @@ export const DoctorDesk: React.FC<DoctorDeskProps> = ({ onOpenCaseChat }) => {
                     {token.tokenNumber}
                   </td>
                   <td className="py-3 px-3.5 font-semibold text-slate-800">
-                    {token.patientName}
+                    <div className="flex items-center gap-2">
+                      {token.photoDataUrl && (
+                        <img
+                          src={token.photoDataUrl}
+                          alt="Patient"
+                          className="w-8 h-8 rounded-lg object-cover border border-red-300 shadow-2xs shrink-0"
+                        />
+                      )}
+                      <div>
+                        <span className="block">{token.patientName}</span>
+                        {token.biometricMatched && (
+                          <span className="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-100 text-purple-800 border border-purple-200 mt-0.5">
+                            ABDM Biometric
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td className="py-3 px-3.5 text-slate-500">
                     {token.patientAge}y / {token.gender}

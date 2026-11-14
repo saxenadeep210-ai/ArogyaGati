@@ -326,6 +326,18 @@ export const TRANSLATIONS = {
       vitalsQuick: 'Rapid Vitals (Optional)',
       driverVehicleBadge: 'Ambulance 108 Emergency Crew',
       quickSignIn: 'EMT Fast Sign-In',
+      photoUploadTitle: 'Patient Photo / Facial Snapshot (Optional)',
+      photoUploadDesc: 'Take a quick mobile camera photo or upload image of unidentified/unconscious patient.',
+      takePhoto: 'Take Photo / Upload Image',
+      removePhoto: 'Remove Photo',
+      photoAttached: 'Photo Attached to Emergency Token',
+      biometricTitle: 'Biometric Device Query (Optional)',
+      biometricDesc: 'Connect USB/Bluetooth fingerprint or iris scanner to fetch ABDM / Aadhaar details for unconscious patient.',
+      connectBiometric: 'Connect & Fetch from Biometric Device',
+      scanningBiometric: 'Connecting & Scanning Fingerprint...',
+      biometricSuccess: 'Biometric Match Found! Details Auto-Populated.',
+      biometricDeviceConnected: 'Device Connected: Mantra MFS100 / Startek FM220',
+      unconsciousPatientHint: 'Patient Unconscious / Inactive? Use Photo & Biometrics to identify without verbal details.',
     }
   },
 
@@ -654,6 +666,18 @@ export const TRANSLATIONS = {
       vitalsQuick: 'त्वरित वाइटल्स (वैकल्पिक)',
       driverVehicleBadge: 'एम्बुलेंस 108 इमरजेंसी टीम',
       quickSignIn: 'EMT त्वरित लॉगिन',
+      photoUploadTitle: 'मरीज़ की फोटो / चेहरे का स्नैपशॉट (वैकल्पिक)',
+      photoUploadDesc: 'अचेत या अज्ञात मरीज़ के लिए मोबाइल कैमरे से तुरंत फोटो लें या अपलोड करें।',
+      takePhoto: 'फोटो खींचें / अपलोड करें',
+      removePhoto: 'फोटो हटाएं',
+      photoAttached: 'इमरजेंसी टोकन के साथ फोटो संलग्न',
+      biometricTitle: 'बायोमेट्रिक डिवाइस द्वारा पहचान (वैकल्पिक)',
+      biometricDesc: 'अचेत मरीज़ की पहचान हेतु यूएसबी/ब्लूटूथ फिंगरप्रिंट स्कैनर जोड़कर आभा/आधार विवरण प्राप्त करें।',
+      connectBiometric: 'बायोमेट्रिक डिवाइस कनेक्ट व विवरण प्राप्त करें',
+      scanningBiometric: 'डिवाइस कनेक्ट हो रहा है एवं फिंगरप्रिंट स्कैन जारी...',
+      biometricSuccess: 'बायोमेट्रिक मिलान सफल! विवरण स्वतः भर गया।',
+      biometricDeviceConnected: 'डिवाइस कनेक्टेड: मंत्रा MFS100 / स्टारटेक',
+      unconsciousPatientHint: 'मरीज़ अचेत अवस्था में है? बिना बोले पहचान के लिए फोटो व बायोमेट्रिक का उपयोग करें।',
     }
   }
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthLayout } from '../../components/auth/AuthLayout';
 import { AuthInput } from '../../components/auth/AuthInput';
@@ -18,7 +18,13 @@ import {
   Truck,
   ArrowRight,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  Camera,
+  Fingerprint,
+  Trash2,
+  Image as ImageIcon,
+  Cpu,
+  Check
 } from 'lucide-react';
 
 export const AmbulanceLogin: React.FC = () => {
@@ -38,6 +44,81 @@ export const AmbulanceLogin: React.FC = () => {
   const [patientDesc, setPatientDesc] = useState('');
   const [eta, setEta] = useState(10);
   const [generatedEmergencyToken, setGeneratedEmergencyToken] = useState<any | null>(null);
+
+  // Optional Photo & Biometric states for unconscious/incapacitated patients
+  const [patientPhoto, setPatientPhoto] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [biometricStatus, setBiometricStatus] = useState<'IDLE' | 'CONNECTING' | 'SCANNING' | 'MATCHED' | 'FAILED'>('IDLE');
+  const [biometricDetails, setBiometricDetails] = useState<any | null>(null);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPatientPhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setPatientPhoto(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSamplePhoto = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 160;
+    canvas.height = 160;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = '#1E293B';
+      ctx.fillRect(0, 0, 160, 160);
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.arc(80, 70, 36, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('EMG-PATIENT', 80, 74);
+      ctx.fillStyle = '#DC2626';
+      ctx.fillRect(35, 120, 90, 26);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 9px monospace';
+      ctx.fillText('CASUALTY-SNAP', 80, 137);
+      setPatientPhoto(canvas.toDataURL('image/png'));
+    }
+  };
+
+  const handleConnectAndScanBiometric = () => {
+    setBiometricStatus('CONNECTING');
+    setTimeout(() => {
+      setBiometricStatus('SCANNING');
+      setTimeout(() => {
+        const mockBiometric = {
+          matchedName: 'Deepak Saxena',
+          matchedAge: 34,
+          matchedGender: 'MALE' as const,
+          matchedAadhaarOrAbha: '14-5544-7788-9922',
+          matchedBloodGroup: 'O+ Positive',
+          sourceDevice: 'Mantra MFS100 Optical Scanner (USB-OTG)',
+          emergencyContact: '+91 98765-43210 (Sister: Aarti Saxena)'
+        };
+        setBiometricStatus('MATCHED');
+        setBiometricDetails(mockBiometric);
+        setPatientDesc(mockBiometric.matchedName);
+      }, 1200);
+    }, 800);
+  };
+
+  const handleResetBiometric = () => {
+    setBiometricStatus('IDLE');
+    setBiometricDetails(null);
+  };
 
   // 1-Click Fast Duty Login for EMT Crew
   const handleFastEMTLogin = async () => {
@@ -109,6 +190,9 @@ export const AmbulanceLogin: React.FC = () => {
       description: `Immediate inbound casualty alert: ${emergencyCat}`,
       incidentLocation: 'In Transit to Casualty Block',
       etaMinutes: Number(eta) || 10,
+      photoDataUrl: patientPhoto || undefined,
+      biometricStatus: biometricStatus === 'MATCHED' ? 'MATCHED' : 'NOT_SCANNED',
+      biometricMatchDetails: biometricDetails || undefined,
       vitals: {
         bloodPressure: '110/70',
         pulseRate: 110,
@@ -265,6 +349,134 @@ export const AmbulanceLogin: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Non-Verbal Patient Identification (Photo & Biometrics - Optional for Unconscious Patients) */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 text-[11px] flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-slate-700" />
+                      <span>{t.ambulance.photoUploadTitle}</span>
+                    </span>
+                    <span className="text-[9px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                      {isHindi ? 'वैकल्पिक' : 'Optional'}
+                    </span>
+                  </div>
+
+                  <p className="text-[10px] text-slate-500">
+                    {t.ambulance.unconsciousPatientHint}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {/* Photo Upload / Camera Snap */}
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1.5">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handlePhotoSelect}
+                        className="hidden"
+                      />
+                      {patientPhoto ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={patientPhoto}
+                            alt="Captured Snapshot"
+                            className="w-12 h-12 object-cover rounded-lg border border-slate-300"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[10px] font-bold text-emerald-700 block truncate">
+                              {isHindi ? 'फोटो संलग्न है' : 'Photo Attached'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleRemovePhoto}
+                              className="text-[9px] font-bold text-red-600 hover:text-red-800 flex items-center gap-1 cursor-pointer mt-0.5"
+                            >
+                              <Trash2 className="w-2.5 h-2.5" />
+                              <span>{t.ambulance.removePhoto}</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-[#3435D8] rounded-lg font-bold text-[11px] flex items-center justify-center gap-1.5 border border-blue-200 cursor-pointer"
+                          >
+                            <Camera className="w-3.5 h-3.5" />
+                            <span>{t.ambulance.takePhoto}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSamplePhoto}
+                            className="w-full text-[9px] text-slate-500 hover:text-slate-700 font-semibold text-center cursor-pointer"
+                          >
+                            {isHindi ? '⚡ डेमो फोटो लोड करें' : '⚡ Load Demo Snapshot'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Biometric Device Query */}
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-200 flex flex-col justify-between">
+                      {biometricStatus === 'IDLE' && (
+                        <div className="space-y-1">
+                          <button
+                            type="button"
+                            onClick={handleConnectAndScanBiometric}
+                            className="w-full py-1.5 px-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1.5 border border-purple-200 cursor-pointer"
+                          >
+                            <Fingerprint className="w-3.5 h-3.5 text-purple-600" />
+                            <span>{t.ambulance.connectBiometric}</span>
+                          </button>
+                          <p className="text-[9px] text-slate-400 text-center">
+                            Mantra / Morpho USB-OTG
+                          </p>
+                        </div>
+                      )}
+
+                      {biometricStatus === 'CONNECTING' && (
+                        <div className="text-center py-1">
+                          <span className="text-[10px] font-bold text-purple-700 flex items-center justify-center gap-1">
+                            <Cpu className="w-3 h-3 animate-spin" />
+                            <span>Connecting...</span>
+                          </span>
+                        </div>
+                      )}
+
+                      {biometricStatus === 'SCANNING' && (
+                        <div className="text-center py-1 animate-pulse">
+                          <span className="text-[10px] font-bold text-amber-800 flex items-center justify-center gap-1">
+                            <Fingerprint className="w-3 h-3 animate-bounce" />
+                            <span>Place Finger...</span>
+                          </span>
+                        </div>
+                      )}
+
+                      {biometricStatus === 'MATCHED' && biometricDetails && (
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-emerald-800 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <span>ABDM Verified</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleResetBiometric}
+                              className="text-[9px] text-slate-500 hover:text-slate-800 font-bold"
+                            >
+                              Reset
+                            </button>
+                          </div>
+                          <p className="text-[9px] text-slate-700 font-bold truncate">{biometricDetails.matchedName}</p>
+                          <p className="text-[8px] text-slate-500 font-mono">ABHA: {biometricDetails.matchedAadhaarOrAbha}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
@@ -292,6 +504,32 @@ export const AmbulanceLogin: React.FC = () => {
                   <p className="text-slate-700">
                     <strong>{t.ambulance.tokenReservedBed}:</strong> Trauma Bay 01 (Casualty Ground Floor)
                   </p>
+
+                  {(generatedEmergencyToken.photoDataUrl || generatedEmergencyToken.biometricStatus === 'MATCHED') && (
+                    <div className="pt-2 border-t border-emerald-200 flex items-center gap-2">
+                      {generatedEmergencyToken.photoDataUrl && (
+                        <img
+                          src={generatedEmergencyToken.photoDataUrl}
+                          alt="Patient"
+                          className="w-9 h-9 object-cover rounded-md border border-emerald-300"
+                        />
+                      )}
+                      <div className="flex gap-1 flex-wrap">
+                        {generatedEmergencyToken.photoDataUrl && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-950 flex items-center gap-1">
+                            <Camera className="w-2.5 h-2.5" />
+                            <span>Photo Attached</span>
+                          </span>
+                        )}
+                        {generatedEmergencyToken.biometricStatus === 'MATCHED' && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-200 flex items-center gap-1">
+                            <Fingerprint className="w-2.5 h-2.5" />
+                            <span>Biometric Verified</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">

@@ -491,6 +491,9 @@ class HospitalStore {
     incidentLocation: string;
     etaMinutes: number;
     vitals: EmergencyCase['vitals'];
+    photoDataUrl?: string;
+    biometricStatus?: EmergencyCase['biometricStatus'];
+    biometricMatchDetails?: EmergencyCase['biometricMatchDetails'];
   }): EmergencyCase {
     const tokenSeq = this.emergencyCases.length + 10;
     const emergencyToken = `EMG-RED-${String(tokenSeq).padStart(3, '0')}`;
@@ -531,7 +534,10 @@ class HospitalStore {
       status: 'EN_ROUTE',
       vitals: params.vitals,
       reservedBedId: availableBed?.id,
-      createdTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      createdTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      photoDataUrl: params.photoDataUrl,
+      biometricStatus: params.biometricStatus || 'NOT_SCANNED',
+      biometricMatchDetails: params.biometricMatchDetails
     };
 
     // Add priority emergency token to QueueTokens list so it appears in Doctor Desk & Admin monitor with high priority!
@@ -559,10 +565,12 @@ class HospitalStore {
       status: 'WAITING',
       queuePosition: 1, // Emergency jumps to front of queue
       estimatedWaitMinutes: 1,
-      causeOfVisit: `EMERGENCY: ${params.category} - ${params.incidentLocation}`,
+      causeOfVisit: `EMERGENCY: ${params.category} - ${params.incidentLocation}${params.photoDataUrl ? ' [📷 Photo Attached]' : ''}${params.biometricStatus === 'MATCHED' ? ' [👆 Biometric Verified]' : ''}`,
       symptoms: params.description,
       visitType: 'NEW',
-      caseGroupId: `CASE-GRP-EMG-${Date.now().toString().slice(-4)}`
+      caseGroupId: `CASE-GRP-EMG-${Date.now().toString().slice(-4)}`,
+      photoDataUrl: params.photoDataUrl,
+      biometricMatched: params.biometricStatus === 'MATCHED'
     };
 
     this.emergencyCases = [newCase, ...this.emergencyCases];

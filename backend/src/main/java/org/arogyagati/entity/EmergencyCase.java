@@ -73,6 +73,12 @@ public class EmergencyCase {
     @Column(name = "glasgow_coma_scale")
     private Integer glasgowComaScale;
 
+    @Column(name = "photo_data", columnDefinition = "TEXT")
+    private String photoData;
+
+    @Column(name = "biometric_status", length = 50)
+    private String biometricStatus;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -144,6 +150,12 @@ public class EmergencyCase {
 
     public Integer getGlasgowComaScale() { return glasgowComaScale; }
     public void setGlasgowComaScale(Integer glasgowComaScale) { this.glasgowComaScale = glasgowComaScale; }
+
+    public String getPhotoData() { return photoData; }
+    public void setPhotoData(String photoData) { this.photoData = photoData; }
+
+    public String getBiometricStatus() { return biometricStatus; }
+    public void setBiometricStatus(String biometricStatus) { this.biometricStatus = biometricStatus; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -123,6 +123,8 @@ export interface QueueToken {
   prescription?: string;
   calledAt?: string;
   completedAt?: string;
+  photoDataUrl?: string;
+  biometricMatched?: boolean;
 }
 
 export type EmergencyCategory = 
@@ -172,6 +174,17 @@ export interface EmergencyCase {
   };
   reservedBedId?: string;
   createdTime: string;
+  photoDataUrl?: string;
+  biometricStatus?: 'NOT_SCANNED' | 'CONNECTING' | 'SCANNING' | 'MATCHED' | 'FAILED';
+  biometricMatchDetails?: {
+    matchedAadhaarOrAbha?: string;
+    sourceDevice?: string;
+    matchedName?: string;
+    matchedAge?: number;
+    matchedGender?: 'MALE' | 'FEMALE' | 'OTHER';
+    matchedBloodGroup?: string;
+    emergencyContact?: string;
+  };
 }
 
 export type BedCategory = 
