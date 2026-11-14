@@ -209,7 +209,7 @@ export const AmbulanceLogin: React.FC = () => {
       title={t.ambulance.title}
       subtitle={t.ambulance.subtitle}
       roleBadge={{
-        text: 'Priority 108 Emergency Dispatch',
+        text: isHindi ? 'प्राथमिकता 108 आपातकालीन प्रेषण' : 'Priority 108 Emergency Dispatch',
         icon: <Ambulance className="w-3.5 h-3.5" />,
         colorClass: 'bg-red-50 text-[#DC4545] border border-red-200/80',
       }}
@@ -224,7 +224,7 @@ export const AmbulanceLogin: React.FC = () => {
             </span>
           </div>
           <span className="text-[10px] bg-white/20 font-bold px-2 py-0.5 rounded">
-            Immediate 108
+            {isHindi ? 'तत्काल 108' : 'Immediate 108'}
           </span>
         </div>
 
@@ -431,7 +431,7 @@ export const AmbulanceLogin: React.FC = () => {
                             <span>{t.ambulance.connectBiometric}</span>
                           </button>
                           <p className="text-[9px] text-slate-400 text-center">
-                            Mantra / Morpho USB-OTG
+                            {isHindi ? 'मंत्रा / मॉर्फो यूएसबी-ओटीजी' : 'Mantra / Morpho USB-OTG'}
                           </p>
                         </div>
                       )}
@@ -440,7 +440,7 @@ export const AmbulanceLogin: React.FC = () => {
                         <div className="text-center py-1">
                           <span className="text-[10px] font-bold text-purple-700 flex items-center justify-center gap-1">
                             <Cpu className="w-3 h-3 animate-spin" />
-                            <span>Connecting...</span>
+                            <span>{t.ambulance.connectingScanner}</span>
                           </span>
                         </div>
                       )}
@@ -449,7 +449,7 @@ export const AmbulanceLogin: React.FC = () => {
                         <div className="text-center py-1 animate-pulse">
                           <span className="text-[10px] font-bold text-amber-800 flex items-center justify-center gap-1">
                             <Fingerprint className="w-3 h-3 animate-bounce" />
-                            <span>Place Finger...</span>
+                            <span>{t.ambulance.placeFingerOnSensor}</span>
                           </span>
                         </div>
                       )}
@@ -459,14 +459,14 @@ export const AmbulanceLogin: React.FC = () => {
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-black text-emerald-800 flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              <span>ABDM Verified</span>
+                              <span>{t.ambulance.abdmMatchFound}</span>
                             </span>
                             <button
                               type="button"
                               onClick={handleResetBiometric}
                               className="text-[9px] text-slate-500 hover:text-slate-800 font-bold"
                             >
-                              Reset
+                              {t.ambulance.reset}
                             </button>
                           </div>
                           <p className="text-[9px] text-slate-700 font-bold truncate">{biometricDetails.matchedName}</p>
@@ -502,7 +502,7 @@ export const AmbulanceLogin: React.FC = () => {
                     <strong>{t.ambulance.tokenAssignedDoc}:</strong> {generatedEmergencyToken.assignedDoctorName}
                   </p>
                   <p className="text-slate-700">
-                    <strong>{t.ambulance.tokenReservedBed}:</strong> Trauma Bay 01 (Casualty Ground Floor)
+                    <strong>{t.ambulance.tokenReservedBed}:</strong> {isHindi ? 'ट्रॉमा बे 01 (कैजुअल्टी भूतल)' : 'Trauma Bay 01 (Casualty Ground Floor)'}
                   </p>
 
                   {(generatedEmergencyToken.photoDataUrl || generatedEmergencyToken.biometricStatus === 'MATCHED') && (
@@ -518,13 +518,13 @@ export const AmbulanceLogin: React.FC = () => {
                         {generatedEmergencyToken.photoDataUrl && (
                           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-950 flex items-center gap-1">
                             <Camera className="w-2.5 h-2.5" />
-                            <span>Photo Attached</span>
+                            <span>{t.ambulance.photoAttached}</span>
                           </span>
                         )}
                         {generatedEmergencyToken.biometricStatus === 'MATCHED' && (
                           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-200 flex items-center gap-1">
                             <Fingerprint className="w-2.5 h-2.5" />
-                            <span>Biometric Verified</span>
+                            <span>{t.ambulance.biometricVerified}</span>
                           </span>
                         )}
                       </div>

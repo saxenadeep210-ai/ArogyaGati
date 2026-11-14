@@ -194,19 +194,21 @@ export const AmbulanceDashboard: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="text-[10px] font-mono font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">
-                108 EMERGENCY DISPATCH
+              <span className="text-[10px] font-mono font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200 uppercase">
+                {isHindi ? '108 आपातकालीन प्रेषण' : '108 EMERGENCY DISPATCH'}
               </span>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{isHindi ? 'जीपीएस रडार सक्रिय' : 'GPS Radar Active'}</span>
+                <span>{t.ambulance.gpsRadarActive}</span>
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               {t.ambulance.title}
             </h1>
             <p className="text-xs text-slate-500">
-              S. N. Medical College Emergency Casualty • High-Priority Triage Coordination
+              {isHindi
+                ? 'एस. एन. मेडिकल कॉलेज आपातकालीन कैजुअल्टी • त्वरित ट्राइएज समन्वय'
+                : 'S. N. Medical College Emergency Casualty • High-Priority Triage Coordination'}
             </p>
           </div>
         </div>
@@ -215,11 +217,11 @@ export const AmbulanceDashboard: React.FC = () => {
         <div className="bg-slate-50 rounded-xl p-3 sm:p-4 border border-slate-200 flex items-center gap-4 sm:gap-6 text-xs w-full md:w-auto justify-between sm:justify-around">
           <div>
             <span className="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">{t.ambulance.tokenReservedBed || 'Casualty Beds'}:</span>
-            <span className="font-bold text-emerald-700 text-lg sm:text-xl">{traumaBedsAvailable} {isHindi ? 'खाली' : 'Free'}</span>
+            <span className="font-bold text-emerald-700 text-lg sm:text-xl">{traumaBedsAvailable} {t.ambulance.free}</span>
           </div>
           <div className="border-l border-slate-200 pl-4 sm:pl-6">
             <span className="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">{t.bed.icuBeds}:</span>
-            <span className="font-bold text-slate-800 text-lg sm:text-xl">{icuBedsAvailable} {isHindi ? 'खाली' : 'Free'}</span>
+            <span className="font-bold text-slate-800 text-lg sm:text-xl">{icuBedsAvailable} {t.ambulance.free}</span>
           </div>
           <div className="border-l border-slate-200 pl-4 sm:pl-6">
             <a
@@ -246,7 +248,7 @@ export const AmbulanceDashboard: React.FC = () => {
               </h2>
             </div>
             <span className="text-[11px] font-bold text-red-700 bg-red-50 px-2.5 py-1 rounded-full uppercase">
-              Fast Triage Active
+              {t.ambulance.fastTriageActive}
             </span>
           </div>
 
@@ -270,7 +272,7 @@ export const AmbulanceDashboard: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block uppercase font-bold">{t.ambulance.tokenReservedBed}</span>
-                  <strong className="text-red-700">Trauma Bay 01 (Casualty)</strong>
+                  <strong className="text-red-700">{isHindi ? 'ट्रॉमा बे 01 (कैजुअल्टी)' : 'Trauma Bay 01 (Casualty)'}</strong>
                 </div>
               </div>
 
@@ -288,13 +290,13 @@ export const AmbulanceDashboard: React.FC = () => {
                     {registeredCase.photoDataUrl && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-950 flex items-center gap-1">
                         <Camera className="w-3 h-3 text-emerald-800" />
-                        <span>{isHindi ? 'फोटो संलग्न' : 'Photo Attached'}</span>
+                        <span>{t.ambulance.photoAttached}</span>
                       </span>
                     )}
                     {registeredCase.biometricStatus === 'MATCHED' && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-200 flex items-center gap-1">
                         <Fingerprint className="w-3 h-3 text-purple-700" />
-                        <span>{isHindi ? 'बायोमेट्रिक प्रमाणित' : 'Biometric ABDM Verified'}</span>
+                        <span>{t.ambulance.biometricVerified}</span>
                       </span>
                     )}
                   </div>
@@ -302,7 +304,7 @@ export const AmbulanceDashboard: React.FC = () => {
               )}
 
               <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between">
-                <span className="text-emerald-800 font-semibold">Casualty team notified & waiting at ambulance bay.</span>
+                <span className="text-emerald-800 font-semibold">{t.ambulance.casualtyNotified}</span>
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=SN+Medical+College+Agra`}
                   target="_blank"
@@ -310,7 +312,7 @@ export const AmbulanceDashboard: React.FC = () => {
                   className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 shadow-xs"
                 >
                   <Navigation className="w-3.5 h-3.5" />
-                  <span>GPS Route</span>
+                  <span>{t.ambulance.gpsRoute}</span>
                 </a>
               </div>
             </div>
@@ -370,8 +372,8 @@ export const AmbulanceDashboard: React.FC = () => {
                       : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
                   }`}
                 >
-                  <span className="block text-xs font-black">🔴 CRITICAL</span>
-                  <span className="text-[9px] opacity-90 block mt-0.5">Immediate OT / ICU</span>
+                  <span className="block text-xs font-black">{isHindi ? '🔴 अति गंभीर' : '🔴 CRITICAL'}</span>
+                  <span className="text-[9px] opacity-90 block mt-0.5">{t.ambulance.immediateOtIcu}</span>
                 </button>
 
                 <button
@@ -383,8 +385,8 @@ export const AmbulanceDashboard: React.FC = () => {
                       : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
                   }`}
                 >
-                  <span className="block text-xs font-black">🟡 URGENT</span>
-                  <span className="text-[9px] opacity-90 block mt-0.5">Priority Trauma Bay</span>
+                  <span className="block text-xs font-black">{isHindi ? '🟡 गंभीर' : '🟡 URGENT'}</span>
+                  <span className="text-[9px] opacity-90 block mt-0.5">{t.ambulance.priorityTraumaBay}</span>
                 </button>
 
                 <button
@@ -396,8 +398,8 @@ export const AmbulanceDashboard: React.FC = () => {
                       : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
                   }`}
                 >
-                  <span className="block text-xs font-black">🟢 STABLE</span>
-                  <span className="text-[9px] opacity-90 block mt-0.5">Casualty Triage</span>
+                  <span className="block text-xs font-black">{isHindi ? '🟢 सामान्य' : '🟢 STABLE'}</span>
+                  <span className="text-[9px] opacity-90 block mt-0.5">{t.ambulance.casualtyTriage}</span>
                 </button>
               </div>
             </div>
@@ -409,7 +411,10 @@ export const AmbulanceDashboard: React.FC = () => {
                   3. {t.ambulance.patientInfo}
                 </label>
                 <div className="flex gap-2 mb-1.5 flex-wrap">
-                  {['Unknown Victim', 'Bike Crash Rider', 'Elderly Patient', 'Mother in Labour'].map(chip => (
+                  {(isHindi 
+                    ? ['अज्ञात पीड़ित', 'दुर्घटना बाइक सवार', 'वृद्ध मरीज़', 'प्रसूति माता']
+                    : ['Unknown Victim', 'Bike Crash Rider', 'Elderly Patient', 'Mother in Labour']
+                  ).map(chip => (
                     <button
                       key={chip}
                       type="button"
@@ -433,13 +438,13 @@ export const AmbulanceDashboard: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    Pickup Location / Landmark
+                    {t.ambulance.pickupLocation}
                   </label>
                   <input
                     type="text"
                     value={incidentLocation}
                     onChange={e => setIncidentLocation(e.target.value)}
-                    placeholder="e.g. NH-19 Runakta Flyover"
+                    placeholder={t.ambulance.pickupPlaceholder}
                     className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 font-semibold"
                   />
                 </div>
@@ -476,7 +481,7 @@ export const AmbulanceDashboard: React.FC = () => {
                   </span>
                 </div>
                 <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full w-fit">
-                  {isHindi ? 'वैकल्पिक: अचेत / अज्ञात मरीज़ हेतु' : 'Optional: For Unconscious / Unidentified Patient'}
+                  {t.ambulance.optionalUnconscious}
                 </span>
               </div>
 
@@ -491,12 +496,12 @@ export const AmbulanceDashboard: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-slate-800 text-[11px] flex items-center gap-1.5">
                       <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
-                      <span>{isHindi ? 'मरीज़ की फोटो' : 'Patient Photo Snapshot'}</span>
+                      <span>{t.ambulance.patientPhotoSnapshot}</span>
                     </span>
                     {patientPhoto && (
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-1">
                         <Check className="w-3 h-3" />
-                        <span>{isHindi ? 'संलग्न' : 'Attached'}</span>
+                        <span>{t.ambulance.attached}</span>
                       </span>
                     )}
                   </div>
@@ -520,10 +525,10 @@ export const AmbulanceDashboard: React.FC = () => {
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-[11px] font-bold text-slate-900 truncate">
-                          {isHindi ? 'फोटो संलग्न है' : 'Photo Captured'}
+                          {t.ambulance.photoCaptured}
                         </p>
                         <p className="text-[9px] text-slate-500 font-mono">
-                          Ready for trauma team
+                          {t.ambulance.readyForTraumaTeam}
                         </p>
                         <button
                           type="button"
@@ -550,7 +555,7 @@ export const AmbulanceDashboard: React.FC = () => {
                         onClick={handleSamplePhoto}
                         className="w-full py-1 text-[10px] text-slate-500 hover:text-slate-800 font-semibold text-center cursor-pointer"
                       >
-                        {isHindi ? '⚡ डेमो फोटो लोड करें' : '⚡ Load Demo Trauma Snapshot'}
+                        {t.ambulance.loadDemoSnapshot}
                       </button>
                     </div>
                   )}
@@ -561,7 +566,7 @@ export const AmbulanceDashboard: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-slate-800 text-[11px] flex items-center gap-1.5">
                       <Fingerprint className="w-3.5 h-3.5 text-purple-600" />
-                      <span>{isHindi ? 'बायोमेट्रिक डिवाइस' : 'Biometric Scanner'}</span>
+                      <span>{t.ambulance.biometricScanner}</span>
                     </span>
                     <span className="text-[10px] font-mono text-slate-400">
                       USB / Bluetooth
@@ -579,7 +584,7 @@ export const AmbulanceDashboard: React.FC = () => {
                         <span>{t.ambulance.connectBiometric}</span>
                       </button>
                       <p className="text-[9px] text-slate-400 text-center">
-                        Mantra MFS100 • Startek • Morpho • WebAuthn
+                        {t.ambulance.scannerHardwareDesc}
                       </p>
                     </div>
                   )}
@@ -588,9 +593,9 @@ export const AmbulanceDashboard: React.FC = () => {
                     <div className="p-2.5 bg-purple-50 rounded-xl border border-purple-200 text-center space-y-1">
                       <div className="flex items-center justify-center gap-1.5 text-purple-800 font-bold text-xs">
                         <Cpu className="w-4 h-4 animate-spin text-purple-600" />
-                        <span>{isHindi ? 'डिवाइस कनेक्ट हो रहा है...' : 'Connecting to Scanner Hardware...'}</span>
+                        <span>{t.ambulance.connectingScanner}</span>
                       </div>
-                      <p className="text-[9px] text-purple-600">Checking USB-OTG / Bluetooth connection</p>
+                      <p className="text-[9px] text-purple-600">{t.ambulance.checkingConnection}</p>
                     </div>
                   )}
 
@@ -598,9 +603,9 @@ export const AmbulanceDashboard: React.FC = () => {
                     <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-300 text-center space-y-1 animate-pulse">
                       <div className="flex items-center justify-center gap-1.5 text-amber-900 font-black text-xs">
                         <Fingerprint className="w-4 h-4 text-amber-600 animate-bounce" />
-                        <span>{isHindi ? 'उंगली स्कैनर पर रखें...' : 'Place Finger on Sensor...'}</span>
+                        <span>{t.ambulance.placeFingerOnSensor}</span>
                       </div>
-                      <p className="text-[9px] text-amber-700">Mantra MFS100 Ready • Reading biometric hash</p>
+                      <p className="text-[9px] text-amber-700">{t.ambulance.scannerReading}</p>
                     </div>
                   )}
 
@@ -609,20 +614,20 @@ export const AmbulanceDashboard: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-black text-emerald-800 flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>ABDM Match Found</span>
+                          <span>{t.ambulance.abdmMatchFound}</span>
                         </span>
                         <button
                           type="button"
                           onClick={handleResetBiometric}
                           className="text-[9px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
                         >
-                          Reset
+                          {t.ambulance.reset}
                         </button>
                       </div>
                       <div className="text-[10px] text-slate-700 leading-tight">
                         <p className="font-bold text-slate-900">{biometricDetails.matchedName}</p>
                         <p className="text-[9px] text-slate-500 font-mono">ABHA: {biometricDetails.matchedAadhaarOrAbha}</p>
-                        <p className="text-[9px] text-emerald-700 font-semibold">Blood Group: {biometricDetails.matchedBloodGroup}</p>
+                        <p className="text-[9px] text-emerald-700 font-semibold">{t.ambulance.bloodGroup}: {biometricDetails.matchedBloodGroup}</p>
                       </div>
                     </div>
                   )}
@@ -655,7 +660,7 @@ export const AmbulanceDashboard: React.FC = () => {
                 </h3>
               </div>
               <span className="text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-full">
-                {emergencyCases.length} Inbound
+                {emergencyCases.length} {t.ambulance.inbound}
               </span>
             </div>
 
@@ -674,7 +679,12 @@ export const AmbulanceDashboard: React.FC = () => {
                       item.severity === 'URGENT' ? 'bg-amber-500 text-white' :
                       'bg-emerald-600 text-white'
                     }`}>
-                      {item.severity}
+                      {item.severity === 'CRITICAL' 
+                        ? (isHindi ? 'अति गंभीर' : 'CRITICAL') 
+                        : item.severity === 'URGENT' 
+                          ? (isHindi ? 'गंभीर' : 'URGENT') 
+                          : (isHindi ? 'सामान्य' : 'STABLE')
+                      }
                     </span>
                   </div>
 
@@ -691,7 +701,7 @@ export const AmbulanceDashboard: React.FC = () => {
                         <h4 className="font-bold text-slate-900 text-sm truncate">{item.patientName}</h4>
                         {item.biometricStatus === 'MATCHED' && (
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-100 text-purple-800 border border-purple-200">
-                            ABDM Biometric
+                            {isHindi ? 'बायोमेट्रिक प्रमाणित' : 'ABDM Biometric'}
                           </span>
                         )}
                       </div>
@@ -705,10 +715,10 @@ export const AmbulanceDashboard: React.FC = () => {
 
                   <div className="p-2 bg-white rounded-xl border border-slate-100 flex items-center justify-between text-[11px]">
                     <span className="text-slate-600">
-                      Doctor: <strong>{item.assignedDoctorName}</strong>
+                      {t.ambulance.doctorLabel}: <strong>{item.assignedDoctorName}</strong>
                     </span>
                     <span className="text-purple-700 font-bold">
-                      {item.reservedBedId || 'Trauma Bay 01'}
+                      {item.reservedBedId || (isHindi ? 'ट्रॉमा बे 01' : 'Trauma Bay 01')}
                     </span>
                   </div>
 
